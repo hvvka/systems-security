@@ -36,6 +36,7 @@ public class Crypter {
         } catch (Exception e) {
             LOG.error("", e);
         }
+        return null;
     }
 
     /**

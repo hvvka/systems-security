@@ -154,7 +154,6 @@ public class Client {
         try (Socket tempSocket = new Socket()) {
             tempSocket.connect(this.address);
             tempSocket.isConnected();
-            tempSocket.close();
             return true;
         } catch (IOException e) {
             return false;
@@ -329,7 +328,7 @@ public class Client {
                     onLogError("[Client] Connection lost");
                     repairConnection();
                 } catch (ClassNotFoundException | IOException | InterruptedException ex) {
-                    LOG.error("", e);
+                    LOG.error("", ex);
                     onConnectionProblem();
                     onLogError("[Client] Error: The connection to the server is currently interrupted!");
                     repairConnection();
@@ -391,9 +390,8 @@ public class Client {
             onLogError("[Client] Error right after sending message: EOFException (did the server forget to send a reply?)");
         } catch (IOException | ClassNotFoundException ex) {
             onLogError("[Client] Error while sending message");
-            ex.printStackTrace();
+            LOG.error("", ex);
         }
-
         return null;
     }
 

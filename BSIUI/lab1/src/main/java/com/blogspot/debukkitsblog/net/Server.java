@@ -214,7 +214,7 @@ public abstract class Server {
                                             try {
                                                 tempSocket.close();
                                             } catch (IOException e) {
-                                                e.printStackTrace();
+                                                LOG.error("", e);
                                             }
                                         }
                                     }).start();
@@ -228,7 +228,7 @@ public abstract class Server {
                         onLog("Server stopped.");
                         onServerStopped();
                     } catch (IllegalBlockingModeException | IOException | ClassNotFoundException e) {
-                        e.printStackTrace();
+                        LOG.error("", e);
                     }
 
                 }
@@ -385,7 +385,7 @@ public abstract class Server {
         if (identifier.equalsIgnoreCase(INTERNAL_LOGIN_ID) && autoRegisterEveryClient) {
             throw new IllegalArgumentException("Identifier may not be '" + INTERNAL_LOGIN_ID + "'. "
                     + "Since v1.0.1 the serverSocket automatically registers new clients. "
-                    + "To react on new client registed, use the onClientRegisters() listener by overwriting it.");
+                    + "To react on new client registered, use the onClientRegisters() listener by overwriting it.");
         }
         idMethods.put(identifier, executable);
     }
@@ -437,16 +437,12 @@ public abstract class Server {
         stopped = false;
         serverSocket = null;
         try {
-
-            if (secureMode) {
-                serverSocket = SSLServerSocketFactory.getDefault().createServerSocket(port);
-            } else {
-                serverSocket = new ServerSocket(port);
-            }
-
+            serverSocket = secureMode ?
+                    SSLServerSocketFactory.getDefault().createServerSocket(port)
+                    : new ServerSocket(port);
         } catch (IOException e) {
             onLogError("Error opening ServerSocket");
-            e.printStackTrace();
+            LOG.error("", e);
         }
         startListening();
     }

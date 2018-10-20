@@ -14,7 +14,7 @@ public class Runner {
         System.out.println("Hello Diffie-Helmann chat!");
 
         Server server = new SecureServer(4001);
-        Client client = new SecureClient("localhost", 4002);
-//        client.sendMessage("PING");
+        Client client = new SecureClient("localhost", 4001);
+        System.out.println(client.sendMessage("PING"));
     }
 }

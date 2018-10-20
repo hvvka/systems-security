@@ -221,46 +221,50 @@ public class Client {
             return;
         }
 
-        // 1. connect
         try {
-            onLog("[Client] Connecting" + (secureMode ? " using SSL..." : "..."));
-            if (loginSocket != null && loginSocket.isConnected()) {
-                throw new AlreadyConnectedException();
-            }
-
-            if (secureMode) {
-                loginSocket = SSLSocketFactory.getDefault().createSocket(address.getAddress(), address.getPort());
-            } else {
-                loginSocket = new Socket();
-                loginSocket.connect(this.address, this.timeout);
-            }
-
-            onLog("[Client] Connected to " + loginSocket.getRemoteSocketAddress());
-
-            // 2. login
-            try {
-                onLog("[Client] Logging in...");
-                // open an outputstream
-                ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(loginSocket.getOutputStream()));
-                // create a magic login package
-                Datapackage loginPackage = new Datapackage("_INTERNAL_LOGIN_", id, group);
-                loginPackage.sign(id, group);
-                // send the package to the server
-                out.writeObject(loginPackage);
-                out.flush();
-                // note: this special method does not expect the server to send a reply
-                onLog("[Client] Logged in.");
-                onReconnect();
-            } catch (IOException ex) {
-                onLogError("[Client] Login failed.");
-            }
-
+            connectClient();
+            loginClient();
         } catch (ConnectException e) {
             onLogError("[Client] Connection failed: " + e.getMessage());
             onConnectionProblem();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("", e);
             onConnectionProblem();
+        }
+    }
+
+    private void connectClient() throws IOException {
+        onLog("[Client] Connecting" + (secureMode ? " using SSL..." : "..."));
+        if (loginSocket != null && loginSocket.isConnected()) {
+            throw new AlreadyConnectedException();
+        }
+
+        if (secureMode) {
+            loginSocket = SSLSocketFactory.getDefault().createSocket(address.getAddress(), address.getPort());
+        } else {
+            loginSocket = new Socket();
+            loginSocket.connect(this.address, this.timeout);
+        }
+
+        onLog("[Client] Connected to " + loginSocket.getRemoteSocketAddress());
+    }
+
+    private void loginClient() {
+        try {
+            onLog("[Client] Logging in...");
+            // open an outputstream
+            ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(loginSocket.getOutputStream()));
+            // create a magic login package
+            Datapackage loginPackage = new Datapackage("_INTERNAL_LOGIN_", id, group);
+            loginPackage.sign(id, group);
+            // send the package to the server
+            out.writeObject(loginPackage);
+            out.flush();
+            // note: this special method does not expect the server to send a reply
+            onLog("[Client] Logged in.");
+            onReconnect();
+        } catch (IOException ex) {
+            onLogError("[Client] Login failed.");
         }
     }
 
@@ -357,13 +361,7 @@ public class Client {
     public Datapackage sendMessage(Datapackage message, int timeout) {
         try {
             // connect to the target client's socket
-            Socket tempSocket;
-            if (secureMode) {
-                tempSocket = SSLSocketFactory.getDefault().createSocket(address.getAddress(), address.getPort());
-            } else {
-                tempSocket = new Socket();
-                tempSocket.connect(address, timeout);
-            }
+            Socket tempSocket = getClientSocketConnection(timeout);
 
             // Open output stream and write message
             ObjectOutputStream tempOOS = new ObjectOutputStream(new BufferedOutputStream(tempSocket.getOutputStream()));
@@ -393,6 +391,17 @@ public class Client {
             LOG.error("", ex);
         }
         return null;
+    }
+
+    private Socket getClientSocketConnection(int timeout) throws IOException {
+        Socket tempSocket;
+        if (secureMode) {
+            tempSocket = SSLSocketFactory.getDefault().createSocket(address.getAddress(), address.getPort());
+        } else {
+            tempSocket = new Socket();
+            tempSocket.connect(address, timeout);
+        }
+        return tempSocket;
     }
 
     /**

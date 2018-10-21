@@ -45,6 +45,14 @@ public class DiffieHellman {
         return (long) Math.pow(othersPublicKey, yourPrivateKey) % publicKeys.getP();
     }
 
+    public long getP() {
+        return publicKeys.getP();
+    }
+
+    public long getG() {
+        return publicKeys.getG();
+    }
+
     private static class PublicKeys {
 
         private final long p;

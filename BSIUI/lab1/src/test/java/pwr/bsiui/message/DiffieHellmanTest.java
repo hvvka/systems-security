@@ -63,4 +63,14 @@ public class DiffieHellmanTest {
         // then
         assertEquals(serverSecretKey, clientSecretKey);
     }
+
+    @Test
+    public void getP() {
+        assertEquals(P, diffieHellman.getP());
+    }
+
+    @Test
+    public void getG() {
+        assertEquals(G, diffieHellman.getG());
+    }
 }

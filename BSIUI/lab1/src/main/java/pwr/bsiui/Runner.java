@@ -15,6 +15,6 @@ public class Runner {
 
         Server server = new SecureServer(4001);
         Client client = new SecureClient("localhost", 4001);
-        System.out.println(client.sendMessage("PING"));
+        System.out.println(client.sendMessage("REQUEST"));
     }
 }

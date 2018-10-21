@@ -11,7 +11,7 @@ import pwr.bsiui.server.SecureServer;
 public class Runner {
 
     public static void main(String[] args) {
-        System.out.println("Hello Diffie-Helmann chat!");
+        System.out.println("Hello Diffie-Hellman chat!");
 
         Server server = new SecureServer(4001);
         Client client = new SecureClient("localhost", 4001);

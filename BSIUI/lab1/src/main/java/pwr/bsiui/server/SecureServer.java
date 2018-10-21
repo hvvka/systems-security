@@ -15,48 +15,42 @@ public class SecureServer extends Server {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecureServer.class);
 
+    private static final long privateKey = 5;  // TODO: generate random value
+
     private final DiffieHellman diffieHellman;
 
     private final PacketJsonSerializer packetJsonSerializer;
 
     public SecureServer(int port) {
         super(port);
-        this.diffieHellman = new DiffieHellman();
+        this.diffieHellman = new DiffieHellman(privateKey);
         this.packetJsonSerializer = new PacketJsonSerializer();
     }
 
     @Override
     public void preStart() {
-        registerRequestMethod();
-
-        // TODO: delete
-        exampleRegistration();
+        registerRequestPGMethod();
+        registerRequestPublicKeyMethod();
     }
 
-    private void exampleRegistration() {
-        registerMethod("SOME_MESSAGE", (msg, socket) -> {
-            LOG.info("{}", msg); // do sth with msg
-            sendReply(socket, "Hey, thanks for your message. Greetings!");
-        });
-        registerMethod("IDENTIFIER", (msg, socket) -> {
-            LOG.info("{} for port {}", msg, socket); // do sth with msg
-            sendReply(socket, "Some Reply");
-        });
-        registerMethod("PING", (msg, socket) -> sendReply(socket, "Pong"));
-        registerMethod("Message", (msg, socket) -> {
-            LOG.info("[Message] New chat message arrived, delivering to all the clients...");
-            broadcastMessage(msg); //The broadcast to all the receivers
-            int receiverCount = 10;
-            sendReply(socket, String.valueOf(receiverCount)); //The reply (NECESSARY! unless you want the client to block while waiting for this package)
-        });
-    }
-
-    private void registerRequestMethod() {
-        registerMethod("REQUEST", (msg, socket) -> {
-            LOG.info("Received REQUEST: {}", msg);
+    // TODO: refactor below methods to functional interface
+    private void registerRequestPGMethod() {
+        registerMethod("REQUEST_P_G", (msg, socket) -> {
+            LOG.info("Received REQUEST_P_G: {}", msg);
             ExchangePacket exchangePacket = new ExchangePacketBuilder()
                     .setP(diffieHellman.getP())
                     .setG(diffieHellman.getG())
+                    .createExchangePacket();
+            String json = packetJsonSerializer.toJson(exchangePacket);
+            sendReply(socket, json);
+        });
+    }
+
+    private void registerRequestPublicKeyMethod() {
+        registerMethod("REQUEST_KEY", (msg, socket) -> {
+            LOG.info("Received REQUEST_KEY: {}", msg);
+            ExchangePacket exchangePacket = new ExchangePacketBuilder()
+                    .setPublicKey(diffieHellman.calculatePublicKey())
                     .createExchangePacket();
             String json = packetJsonSerializer.toJson(exchangePacket);
             sendReply(socket, json);

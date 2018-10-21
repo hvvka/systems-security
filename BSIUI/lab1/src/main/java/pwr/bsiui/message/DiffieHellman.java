@@ -13,53 +13,64 @@ public class DiffieHellman {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiffieHellman.class);
 
-    private final PublicKeys publicKeys;
+    private final PGKeys pgKeys;
 
-    public DiffieHellman() {
+    private final long yourPrivateKey;
+
+    private long othersPublicKey;
+
+    public DiffieHellman(long yourPrivateKey) {
+        this.yourPrivateKey = yourPrivateKey;
         // TODO: change these temporary values to something more sophisticated
-        this.publicKeys = new PublicKeys(2, 1);
+        this.pgKeys = new PGKeys(2, 1);
     }
 
-    public DiffieHellman(long p, long g) {
-        this.publicKeys = new PublicKeys(p, g);
+    public DiffieHellman(long p, long g, long yourPrivateKey) {
+        this.pgKeys = new PGKeys(p, g);
+        this.yourPrivateKey = yourPrivateKey;
     }
 
     /**
-     * publicKey = g^privateKey mod p
+     * publicKey = g^yourPrivateKey mod p
      *
-     * @param privateKey user-specific private key
      * @return public key that can be used for message exchange
      */
-    public long calculatePublicKey(long privateKey) {
-        return (long) (Math.pow(publicKeys.getG(), privateKey) % publicKeys.getP());
+    public long calculatePublicKey() {
+        return (long) (Math.pow(pgKeys.getG(), yourPrivateKey) % pgKeys.getP());
     }
 
     /**
      * secretKey = othersPublicKey^yourPrivateKey mod p
      *
-     * @param othersPublicKey public key of side you want to communicate to
-     * @param yourPrivateKey  your own private key
      * @return secret key shared by both sides and used for secure communication
      */
-    public long calculateSharedSecretKey(long othersPublicKey, long yourPrivateKey) {
-        return (long) Math.pow(othersPublicKey, yourPrivateKey) % publicKeys.getP();
+    public long calculateSharedSecretKey() {
+        return (long) Math.pow(othersPublicKey, yourPrivateKey) % pgKeys.getP();
     }
 
     public long getP() {
-        return publicKeys.getP();
+        return pgKeys.getP();
     }
 
     public long getG() {
-        return publicKeys.getG();
+        return pgKeys.getG();
     }
 
-    private static class PublicKeys {
+    public long getOthersPublicKey() {
+        return othersPublicKey;
+    }
+
+    public void setOthersPublicKey(long othersPublicKey) {
+        this.othersPublicKey = othersPublicKey;
+    }
+
+    private static class PGKeys {
 
         private final long p;
 
         private final long g;
 
-        PublicKeys(long p, long g) {
+        PGKeys(long p, long g) {
             this.p = p;
             this.g = g;
         }

@@ -14,23 +14,22 @@ public class DiffieHellmanTest {
 
     private static final long G = 2;
 
+    private final long yourPrivateKey = 5;
+
     private DiffieHellman diffieHellman;
 
     @Before
     public void setUp() {
-        diffieHellman = new DiffieHellman(P, G);
+        diffieHellman = new DiffieHellman(P, G, yourPrivateKey);
     }
 
     @Test
     public void calculatePublicKey() {
-        // given
-        long privateKey = 5;
-
         // when
-        long publicKey = diffieHellman.calculatePublicKey(privateKey);
+        long publicKey = diffieHellman.calculatePublicKey();
 
         // then
-        long expectedPublicKey = (long) Math.pow(G, privateKey) % P;
+        long expectedPublicKey = (long) Math.pow(G, yourPrivateKey) % P;
         assertEquals(expectedPublicKey, publicKey);
     }
 
@@ -38,10 +37,10 @@ public class DiffieHellmanTest {
     public void calculateSharedSecretKey() {
         // given
         long othersPublicKey = 3;
-        long yourPrivateKey = 7;
+        diffieHellman.setOthersPublicKey(othersPublicKey);
 
         // when
-        long secretKey = diffieHellman.calculateSharedSecretKey(othersPublicKey, yourPrivateKey);
+        long secretKey = diffieHellman.calculateSharedSecretKey();
 
         // then
         long expectedSecretKey = (long) Math.pow(othersPublicKey, yourPrivateKey) % P;
@@ -56,9 +55,15 @@ public class DiffieHellmanTest {
         long clientPublicKey = 4;
         long clientPrivateKey = 5;
 
+        DiffieHellman serverDiffieHellman = new DiffieHellman(P, G, serverPrivateKey);
+        serverDiffieHellman.setOthersPublicKey(clientPublicKey);
+
+        DiffieHellman clientDiffieHellman = new DiffieHellman(P, G, clientPrivateKey);
+        clientDiffieHellman.setOthersPublicKey(serverPublicKey);
+
         // when
-        long serverSecretKey = diffieHellman.calculateSharedSecretKey(clientPublicKey, serverPrivateKey);
-        long clientSecretKey = diffieHellman.calculateSharedSecretKey(serverPublicKey, clientPrivateKey);
+        long serverSecretKey = serverDiffieHellman.calculateSharedSecretKey();
+        long clientSecretKey = clientDiffieHellman.calculateSharedSecretKey();
 
         // then
         assertEquals(serverSecretKey, clientSecretKey);

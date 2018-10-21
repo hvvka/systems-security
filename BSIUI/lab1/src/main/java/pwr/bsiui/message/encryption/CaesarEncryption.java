@@ -9,6 +9,9 @@ public class CaesarEncryption implements Encryption {
 
     private final int shift;
 
+    /**
+     * ROT13
+     */
     public CaesarEncryption() {
         shift = 13;
     }

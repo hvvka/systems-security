@@ -1,10 +1,11 @@
 # Diffie-Helmann communicator
 
+
 ZADANIE NA ZA 2 TYG
 
 Chwilowo użyty projekt, aby zapewnić sobie architekturę klient-serwer: https://github.com/DeBukkIt/SimpleServerClient
 
-Komunikator z wykorzystaniem protokołów [Diffiego-Helmanna][1].
+Komunikator z wykorzystaniem protokołów [Diffiego-Hellmana][1].
 Może działać dowolnie, np. p2p (peer-to-peer), klient-serwer.
 
 p, g – klucze
@@ -13,7 +14,9 @@ Ustalić, liczbę (klucz) sesji, tak aby osoba podsłuchująca nie mogła go wyl
 
 Preferowane klient-serwer.
 
+
 Serwer 		Klient
+
 A –––––––––– B
 
 
@@ -21,10 +24,12 @@ A –––––––––– B
 
 1. Klient prosi serwer o kluce p i g.
 2. Serwer wysyła `g^a mod p`
-3. Klient wysyła `g^a mod p`
+3. Klient wysyła `g^b mod p`
 
 B^A = S
+
 A^B = S
+
 S – klucz sesji
 
 Komunikacja przez JSONa.

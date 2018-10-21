@@ -16,6 +16,7 @@ public class DiffieHellman {
     private final PublicKeys publicKeys;
 
     public DiffieHellman() {
+        // TODO: change these temporary values to something more sophisticated
         this.publicKeys = new PublicKeys(2, 1);
     }
 

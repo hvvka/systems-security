@@ -13,14 +13,14 @@ public class SecureClient extends Client {
 
     public SecureClient(String id, int port) {
         super(id, port);
+        registerSendPublicKey();
+        start();
+    }
 
-        registerMethod("SOME_MESSAGE", (msg, socket) -> LOG.info("Look! I got a new message from the server: " + msg.get(1)));
-        registerMethod("IDENTIFIER", (msg, socket) -> LOG.info("{} on port {}", msg, socket));
-        registerMethod("PING", (msg, socket) -> {
-            LOG.info("Look! I got a new message from the server: {}", msg.get(1));
-                // msg.get(1); should now return "Pong" in our example.
+    private void registerSendPublicKey() {
+        registerMethod("SEND_PUBLIC_KEY", (msg, socket) -> {
+            LOG.info("Look! I got a new message from the server: " + msg.get(1));
+            throw new IllegalStateException("Not yet implemented");
         });
-
-        start(); // Do not forget to start the client!
     }
 }

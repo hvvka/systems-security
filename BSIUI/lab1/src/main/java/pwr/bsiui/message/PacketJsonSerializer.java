@@ -19,7 +19,6 @@ public class PacketJsonSerializer {
 
     public PacketJsonSerializer() {
         mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
     }
 

@@ -1,6 +1,12 @@
 # Diffie-Helmann communicator
 
 
+## Requirements
+
+- Java 8
+
+------
+
 ZADANIE NA ZA 2 TYG
 
 Chwilowo użyty projekt, aby zapewnić sobie architekturę klient-serwer: https://github.com/DeBukkIt/SimpleServerClient

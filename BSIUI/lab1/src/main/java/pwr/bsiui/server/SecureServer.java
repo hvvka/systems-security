@@ -4,6 +4,7 @@ import com.blogspot.debukkitsblog.net.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pwr.bsiui.message.DiffieHellman;
+import pwr.bsiui.message.PacketJsonSerializer;
 import pwr.bsiui.message.model.ExchangePacket;
 import pwr.bsiui.message.model.ExchangePacketBuilder;
 
@@ -16,9 +17,12 @@ public class SecureServer extends Server {
 
     private final DiffieHellman diffieHellman;
 
+    private final PacketJsonSerializer packetJsonSerializer;
+
     public SecureServer(int port) {
         super(port);
         this.diffieHellman = new DiffieHellman();
+        this.packetJsonSerializer = new PacketJsonSerializer();
     }
 
     @Override
@@ -54,7 +58,8 @@ public class SecureServer extends Server {
                     .setP(diffieHellman.getP())
                     .setG(diffieHellman.getG())
                     .createExchangePacket();
-            sendReply(socket, exchangePacket);
+            String json = packetJsonSerializer.toJson(exchangePacket);
+            sendReply(socket, json);
         });
     }
 }

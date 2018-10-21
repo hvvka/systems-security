@@ -437,8 +437,8 @@ public abstract class Server {
         stopped = false;
         serverSocket = null;
         try {
-            serverSocket = secureMode ?
-                    SSLServerSocketFactory.getDefault().createServerSocket(port)
+            serverSocket = secureMode
+                    ? SSLServerSocketFactory.getDefault().createServerSocket(port)
                     : new ServerSocket(port);
         } catch (IOException e) {
             onLogError("Error opening ServerSocket");

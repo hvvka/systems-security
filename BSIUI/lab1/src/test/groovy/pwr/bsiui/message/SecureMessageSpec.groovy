@@ -14,7 +14,7 @@ class SecureMessageSpec extends Specification {
 
     private SecureMessage secureMessage
 
-    @Unroll("#message is encoded to #expected")
+    @Unroll("'#message' is encoded to '#expected'")
     def "encode"() {
         given:
         Encryption encryption = encryptionType
@@ -35,7 +35,7 @@ class SecureMessageSpec extends Specification {
         new CaesarEncryption() | "abc"   || "bm9w"
     }
 
-    @Unroll("#message is decoded to #expected")
+    @Unroll("'#message' is decoded to '#expected'")
     def "decode"() {
         given:
         Encryption encryption = encryptionType

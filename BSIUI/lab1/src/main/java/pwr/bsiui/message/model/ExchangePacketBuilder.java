@@ -12,6 +12,13 @@ public class ExchangePacketBuilder {
 
     private String encryption;
 
+    public ExchangePacketBuilder() {
+    }
+
+    public ExchangePacketBuilder(String encryption) {
+        this.encryption = encryption;
+    }
+
     public ExchangePacketBuilder setP(long p) {
         this.p = p;
         return this;

@@ -24,7 +24,9 @@ public class PacketJsonSerializer {
 
     public String toJson(ExchangePacket exchangePacket) {
         try {
-            return mapper.writeValueAsString(exchangePacket);
+            String json = mapper.writeValueAsString(exchangePacket);
+            LOG.info("{}", json);
+            return json;
         } catch (IOException e) {
             LOG.error("Couldn't serialize packet: {}", e);
         }
@@ -32,6 +34,7 @@ public class PacketJsonSerializer {
     }
 
     public ExchangePacket fromJson(String json) {
+        LOG.info("{}", json);
         try {
             return mapper.readValue(json, ExchangePacket.class);
         } catch (IOException e) {

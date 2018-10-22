@@ -6,6 +6,6 @@ package pwr.bsiui.client;
 public class ClientRunner {
 
     public static void main(String[] args) {
-        new ClientLoopDemo(4001);
+        new ClientLoopDemo(4001).start();
     }
 }

@@ -1,8 +1,5 @@
 package pwr.bsiui.message;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Implements Diffie–Hellman key exchange algorithm and helper methods.
  *
@@ -10,8 +7,6 @@ import org.slf4j.LoggerFactory;
  * @see <a href="https://en.wikipedia.org/wiki/Diffie–Hellman_key_exchange">Diffie–Hellman key exchange</a>
  */
 public class DiffieHellman {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DiffieHellman.class);
 
     private final PGKeys pgKeys;
 

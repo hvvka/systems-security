@@ -38,6 +38,8 @@ class ClientLoopDemo {
 
     private final PacketJsonSerializer packetJsonSerializer;
 
+    private final Scanner reader;
+
     private DiffieHellman diffieHellman;
 
     private boolean running;
@@ -45,13 +47,13 @@ class ClientLoopDemo {
     ClientLoopDemo(int port) {
         this.client = new SecureClient("localhost", port);
         this.packetJsonSerializer = new PacketJsonSerializer();
+        this.reader = new Scanner(System.in);
         this.running = true;
     }
 
     void start() {
         while (running) {
-            MENU.values().forEach(LOG::info);
-            Scanner reader = new Scanner(System.in);
+            MENU.values().forEach(System.out::println);
             switch (reader.nextInt()) {
                 case 1: requestPG();
                     break;
@@ -77,28 +79,44 @@ class ClientLoopDemo {
         }
     }
 
-    // TODO: refactor below methods to functional interface
+    // TODO: refactor below methods to functional interface / parametrized method
     private void requestPG() {
         String response = (String) client.sendMessage("REQUEST_P_G").get(1);
         ExchangePacket packet = packetJsonSerializer.fromJson(response);
+        System.err.printf(">> Received P=%s, G=%s\n", packet.getP(), packet.getG());
         this.diffieHellman = new DiffieHellman(packet.getP(), packet.getG(), privateKey);
     }
 
     private void requestPublicKey() {
         String response = (String) client.sendMessage("REQUEST_KEY").get(1);
         ExchangePacket packet = packetJsonSerializer.fromJson(response);
+        System.err.printf(">> Received server's public key=%s\n", packet.getPublicKey());
         this.diffieHellman.setOthersPublicKey(packet.getPublicKey());
     }
 
     private void sendYourPublicKey() {
-        throw new IllegalStateException("Not yet implemented");
+        if (diffieHellman == null) {
+            requestPG();
+            requestPublicKey();
+        }
+        String response = (String) client.sendMessage("SEND_PUBLIC_KEY", diffieHellman.calculatePublicKey()).get(1);
+        ExchangePacket packet = packetJsonSerializer.fromJson(response);
+        System.err.printf(">> %s\n", packet.getMessage());
     }
 
     private void sendMessage() {
-        throw new IllegalStateException("Not yet implemented");
+        System.out.print("Type in your message: ");
+        String message = reader.nextLine();
+        String response = (String) client.sendMessage("SEND_MESSAGE", message).get(1);
+        ExchangePacket packet = packetJsonSerializer.fromJson(response);
+        System.err.printf(">> Response: '%s'\n", packet.getMessage());
     }
 
     private void changeMessageEncryption() {
-        throw new IllegalStateException("Not yet implemented");
+        System.out.print("Choose new encryption method: ");
+        String encryption = reader.next();
+        String response = (String) client.sendMessage("SEND_CHANGE_ENCRYPTION_METHOD", encryption).get(1);
+        ExchangePacket packet = packetJsonSerializer.fromJson(response);
+        System.err.printf(">> %s\n", packet.getMessage());
     }
 }

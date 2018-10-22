@@ -70,4 +70,15 @@ public class ExchangePacket {
         result = 31 * result + (encryption != null ? encryption.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "ExchangePacket{" +
+                "p=" + p +
+                ", g=" + g +
+                ", message='" + message + '\'' +
+                ", publicKey=" + publicKey +
+                ", encryption='" + encryption + '\'' +
+                '}';
+    }
 }

@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pwr.bsiui.message.DiffieHellman;
 import pwr.bsiui.message.PacketJsonSerializer;
-import pwr.bsiui.message.model.ExchangePacket;
+import pwr.bsiui.message.model.Packet;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,14 +82,14 @@ class ClientLoopDemo {
     // TODO: refactor below methods to functional interface / parametrized method
     private void requestPG() {
         String response = (String) client.sendMessage("REQUEST_P_G").get(1);
-        ExchangePacket packet = packetJsonSerializer.fromJson(response);
+        Packet packet = packetJsonSerializer.fromJson(response);
         System.err.printf(">> Received P=%s, G=%s\n", packet.getP(), packet.getG());
         this.diffieHellman = new DiffieHellman(packet.getP(), packet.getG(), privateKey);
     }
 
     private void requestPublicKey() {
         String response = (String) client.sendMessage("REQUEST_KEY").get(1);
-        ExchangePacket packet = packetJsonSerializer.fromJson(response);
+        Packet packet = packetJsonSerializer.fromJson(response);
         System.err.printf(">> Received server's public key=%s\n", packet.getPublicKey());
         this.diffieHellman.setOthersPublicKey(packet.getPublicKey());
     }
@@ -100,7 +100,7 @@ class ClientLoopDemo {
             requestPublicKey();
         }
         String response = (String) client.sendMessage("SEND_PUBLIC_KEY", diffieHellman.calculatePublicKey()).get(1);
-        ExchangePacket packet = packetJsonSerializer.fromJson(response);
+        Packet packet = packetJsonSerializer.fromJson(response);
         System.err.printf(">> %s\n", packet.getMessage());
     }
 
@@ -108,7 +108,7 @@ class ClientLoopDemo {
         System.out.print("Type in your message: ");
         String message = reader.nextLine();
         String response = (String) client.sendMessage("SEND_MESSAGE", message).get(1);
-        ExchangePacket packet = packetJsonSerializer.fromJson(response);
+        Packet packet = packetJsonSerializer.fromJson(response);
         System.err.printf(">> Response: '%s'\n", packet.getMessage());
     }
 
@@ -116,7 +116,7 @@ class ClientLoopDemo {
         System.out.print("Choose new encryption method: ");
         String encryption = reader.next();
         String response = (String) client.sendMessage("SEND_CHANGE_ENCRYPTION_METHOD", encryption).get(1);
-        ExchangePacket packet = packetJsonSerializer.fromJson(response);
+        Packet packet = packetJsonSerializer.fromJson(response);
         System.err.printf(">> %s\n", packet.getMessage());
     }
 }

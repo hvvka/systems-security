@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pwr.bsiui.message.model.ExchangePacket;
+import pwr.bsiui.message.model.Packet;
 
 import java.io.IOException;
 
@@ -22,9 +22,9 @@ public class PacketJsonSerializer {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
     }
 
-    public String toJson(ExchangePacket exchangePacket) {
+    public String toJson(Packet packet) {
         try {
-            String json = mapper.writeValueAsString(exchangePacket);
+            String json = mapper.writeValueAsString(packet);
             LOG.info("{}", json);
             return json;
         } catch (IOException e) {
@@ -33,10 +33,10 @@ public class PacketJsonSerializer {
         return "";
     }
 
-    public ExchangePacket fromJson(String json) {
+    public Packet fromJson(String json) {
         LOG.info("{}", json);
         try {
-            return mapper.readValue(json, ExchangePacket.class);
+            return mapper.readValue(json, Packet.class);
         } catch (IOException e) {
             LOG.error("Couldn't deserialize packet: {}", e);
         }

@@ -11,6 +11,11 @@ public class XorEncryption implements Encryption {
         this.secretKey = secretKey.charAt(secretKey.length() - 1);
     }
 
+    private XorEncryption() {
+        // used by Jackson 2.x
+        secretKey = 'x';
+    }
+
     @Override
     public String encrypt(String message) {
         return encode(message);

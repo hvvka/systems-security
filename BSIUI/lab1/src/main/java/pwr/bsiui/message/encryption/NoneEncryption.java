@@ -5,6 +5,10 @@ package pwr.bsiui.message.encryption;
  */
 public class NoneEncryption implements Encryption {
 
+    public NoneEncryption() {
+        // used by Jackson 2.x
+    }
+
     @Override
     public String encrypt(String message) {
         return message;

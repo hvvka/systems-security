@@ -10,7 +10,7 @@ public class CaesarEncryption implements Encryption {
     private final int shift;
 
     /**
-     * ROT13
+     * ROT13 and is also used by Jackson 2.x
      */
     public CaesarEncryption() {
         shift = 13;
@@ -50,3 +50,4 @@ public class CaesarEncryption implements Encryption {
         return encodedMessage.toString();
     }
 }
+

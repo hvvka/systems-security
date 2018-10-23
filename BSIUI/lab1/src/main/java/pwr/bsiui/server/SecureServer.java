@@ -5,8 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pwr.bsiui.message.DiffieHellman;
 import pwr.bsiui.message.PacketJsonSerializer;
-import pwr.bsiui.message.model.ExchangePacket;
-import pwr.bsiui.message.model.ExchangePacketBuilder;
+import pwr.bsiui.message.encryption.EncryptionFactory;
+import pwr.bsiui.message.model.Packet;
+import pwr.bsiui.message.model.PacketBuilder;
 
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
@@ -21,13 +22,16 @@ public class SecureServer extends Server {
 
     private final PacketJsonSerializer packetJsonSerializer;
 
-    private String encryption;
+    private final EncryptionFactory encryptionFactory;
+
+    private String encryptionName;
 
     public SecureServer(int port) {
         super(port);
         this.diffieHellman = new DiffieHellman(privateKey);
         this.packetJsonSerializer = new PacketJsonSerializer();
-        this.encryption = "none";
+        this.encryptionFactory = new EncryptionFactory();
+        this.encryptionName = "none";
     }
 
     @Override
@@ -45,11 +49,11 @@ public class SecureServer extends Server {
             LOG.info("Received {}", msg.get(0));
             long p = diffieHellman.getP();
             long g = diffieHellman.getG();
-            ExchangePacket exchangePacket = new ExchangePacketBuilder(encryption)
+            Packet packet = new PacketBuilder(encryptionName)
                     .setP(p)
                     .setG(g)
                     .createExchangePacket();
-            String json = packetJsonSerializer.toJson(exchangePacket);
+            String json = packetJsonSerializer.toJson(packet);
             LOG.info("Sending P={}, G={}", p, g);
             sendReply(socket, json);
         });
@@ -59,10 +63,10 @@ public class SecureServer extends Server {
         registerMethod("REQUEST_KEY", (msg, socket) -> {
             LOG.info("Received {}", msg.get(0));
             long publicKey = diffieHellman.calculatePublicKey();
-            ExchangePacket exchangePacket = new ExchangePacketBuilder(encryption)
+            Packet packet = new PacketBuilder(encryptionName)
                     .setPublicKey(publicKey)
                     .createExchangePacket();
-            String json = packetJsonSerializer.toJson(exchangePacket);
+            String json = packetJsonSerializer.toJson(packet);
             LOG.info("Sending public key={}", publicKey);
             sendReply(socket, json);
         });
@@ -70,11 +74,14 @@ public class SecureServer extends Server {
 
     private void registerResponseSendPublicKey() {
         registerMethod("SEND_PUBLIC_KEY", (msg, socket) -> {
-            LOG.info("Received user's public key: {}", msg.get(1));
-            ExchangePacket exchangePacket = new ExchangePacketBuilder(encryption)
+            long userPublicKey = (long) msg.get(1);
+            LOG.info("Received user's public key: {}", userPublicKey);
+            diffieHellman.setOthersPublicKey(userPublicKey);
+            encryptionFactory.setSecretKey(diffieHellman.calculateSharedSecretKey());
+            Packet packet = new PacketBuilder(encryptionName)
                     .setMessage("OK, server received your public key")
                     .createExchangePacket();
-            String json = packetJsonSerializer.toJson(exchangePacket);
+            String json = packetJsonSerializer.toJson(packet);
             sendReply(socket, json);
         });
     }
@@ -82,10 +89,11 @@ public class SecureServer extends Server {
     private void registerResponseSendMessage() {
         registerMethod("SEND_MESSAGE", (msg, socket) -> {
             LOG.info("Received message from user: {}", msg.get(1));
-            ExchangePacket exchangePacket = new ExchangePacketBuilder(encryption)
+            broadcastMessage(msg);  // TODO: change encryption method according to client
+            Packet packet = new PacketBuilder(encryptionName)
                     .setMessage(RandomResponseProvider.get())
                     .createExchangePacket();
-            String json = packetJsonSerializer.toJson(exchangePacket);
+            String json = packetJsonSerializer.toJson(packet);
             sendReply(socket, json);
         });
     }
@@ -93,11 +101,11 @@ public class SecureServer extends Server {
     private void registerResponseChangeEncryptionMethod() {
         registerMethod("SEND_CHANGE_ENCRYPTION_METHOD", (msg, socket) -> {
             LOG.info("Received user's request to change encryption method to: {}", msg.get(1));
-            this.encryption = (String) msg.get(1);
-            ExchangePacket exchangePacket = new ExchangePacketBuilder(encryption)
-                    .setMessage("OK, I'm changing encryption method")
+            this.encryptionName = (String) msg.get(1);
+            Packet packet = new PacketBuilder(encryptionName)
+                    .setMessage(String.format("OK, I'm changing encryption method to %s", this.encryptionName))
                     .createExchangePacket();
-            String json = packetJsonSerializer.toJson(exchangePacket);
+            String json = packetJsonSerializer.toJson(packet);
             sendReply(socket, json);
         });
     }

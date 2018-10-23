@@ -5,11 +5,15 @@ import java.util.Random;
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
-public class RandomResponseProvider {
+class RandomResponseProvider {
 
-    private static final String[] RESPONSES = {"Hi", "I'm server", "Dadada", "Wrrr", "I have limited response list"};
+    private static final String[] RESPONSES = {"Hi", "I'm server", "Dadada", "Just a response mock", "I have limited response list"};
 
-    public static String get() {
+    private RandomResponseProvider() {
+        throw new IllegalStateException("Utility class!");
+    }
+
+    static String get() {
         Random random = new Random();
         return RESPONSES[random.nextInt() % RESPONSES.length];
     }

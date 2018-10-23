@@ -3,7 +3,7 @@ package pwr.bsiui.message.model;
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
-public class ExchangePacket {
+public class Packet {
 
     private long p;
 
@@ -15,11 +15,11 @@ public class ExchangePacket {
 
     private String encryption;
 
-    private ExchangePacket() {
+    private Packet() {
         // used by Jackson 2.x
     }
 
-    ExchangePacket(long p, long g, String message, long publicKey, String encryption) {
+    public Packet(long p, long g, String message, long publicKey, String encryption) {
         this.p = p;
         this.g = g;
         this.message = message;
@@ -52,7 +52,7 @@ public class ExchangePacket {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ExchangePacket that = (ExchangePacket) o;
+        Packet that = (Packet) o;
 
         if (p != that.p) return false;
         if (g != that.g) return false;
@@ -69,16 +69,5 @@ public class ExchangePacket {
         result = 31 * result + (int) (publicKey ^ (publicKey >>> 32));
         result = 31 * result + (encryption != null ? encryption.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "ExchangePacket{" +
-                "p=" + p +
-                ", g=" + g +
-                ", message='" + message + '\'' +
-                ", publicKey=" + publicKey +
-                ", encryption='" + encryption + '\'' +
-                '}';
     }
 }

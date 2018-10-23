@@ -4,8 +4,8 @@ import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import pwr.bsiui.message.model.ExchangePacket;
-import pwr.bsiui.message.model.ExchangePacketBuilder;
+import pwr.bsiui.message.model.Packet;
+import pwr.bsiui.message.model.PacketBuilder;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,7 +24,7 @@ public class PacketJsonSerializerTest {
     @Test
     public void toJson() throws JSONException {
         // given
-        ExchangePacket exchangePacket = new ExchangePacketBuilder()
+        Packet packet = new PacketBuilder()
                 .setP(2)
                 .setG(1)
                 .setMessage("hi")
@@ -32,20 +32,22 @@ public class PacketJsonSerializerTest {
                 .createExchangePacket();
 
         // when
-        String json = packetJsonSerializer.toJson(exchangePacket);
+        String json = packetJsonSerializer.toJson(packet);
 
         // then
         String expectedJson = "{\"p\":2,\"g\":1,\"message\":\"hi\",\"encryption\":\"none\"}";
-        JSONAssert.assertEquals(expectedJson, json, false);
+        JSONAssert.assertEquals(expectedJson, json, true);
     }
 
     @Test
     public void toJsonOnEmptyPacket() throws JSONException {
         // given
-        ExchangePacket exchangePacket = new ExchangePacketBuilder().createExchangePacket();
+        Packet packet = new PacketBuilder()
+                .setEncryption("none")
+                .createExchangePacket();
 
         // when
-        String json = packetJsonSerializer.toJson(exchangePacket);
+        String json = packetJsonSerializer.toJson(packet);
 
         // then
         String expectedJson = "{}";
@@ -58,10 +60,10 @@ public class PacketJsonSerializerTest {
         String json = "{\"p\":2,\"g\":1,\"message\":\"hi\",\"encryption\":\"none\"}";
 
         // when
-        ExchangePacket packet = packetJsonSerializer.fromJson(json);
+        Packet packet = packetJsonSerializer.fromJson(json);
 
         // then
-        ExchangePacket expectedPacket = new ExchangePacketBuilder()
+        Packet expectedPacket = new PacketBuilder()
                 .setG(1)
                 .setP(2)
                 .setEncryption("none")
@@ -76,10 +78,10 @@ public class PacketJsonSerializerTest {
         String json = "{}";
 
         // when
-        ExchangePacket packet = packetJsonSerializer.fromJson(json);
+        Packet packet = packetJsonSerializer.fromJson(json);
 
         // then
-        ExchangePacket expectedPacket = new ExchangePacketBuilder().createExchangePacket();
+        Packet expectedPacket = new PacketBuilder().createExchangePacket();
         assertEquals(expectedPacket, packet);
     }
 }

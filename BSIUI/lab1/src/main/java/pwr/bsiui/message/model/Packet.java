@@ -9,7 +9,7 @@ public class Packet {
 
     private long g;
 
-    private String message;
+    private String message = "";
 
     private long publicKey;
 

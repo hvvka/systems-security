@@ -4,8 +4,7 @@ import com.blogspot.debukkitsblog.net.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pwr.bsiui.message.DiffieHellman;
-import pwr.bsiui.message.PacketJsonSerializer;
-import pwr.bsiui.message.encryption.EncryptionFactory;
+import pwr.bsiui.message.ExchangePacketProvider;
 import pwr.bsiui.message.model.Packet;
 import pwr.bsiui.message.model.PacketBuilder;
 
@@ -20,17 +19,14 @@ public class SecureServer extends Server {
 
     private final DiffieHellman diffieHellman;
 
-    private final PacketJsonSerializer packetJsonSerializer;
-
-    private final EncryptionFactory encryptionFactory;
+    private final ExchangePacketProvider exchangePacketProvider;
 
     private String encryptionName;
 
     public SecureServer(int port) {
         super(port);
         this.diffieHellman = new DiffieHellman(privateKey);
-        this.packetJsonSerializer = new PacketJsonSerializer();
-        this.encryptionFactory = new EncryptionFactory();
+        this.exchangePacketProvider = new ExchangePacketProvider();
         this.encryptionName = "none";
     }
 
@@ -53,7 +49,7 @@ public class SecureServer extends Server {
                     .setP(p)
                     .setG(g)
                     .createExchangePacket();
-            String json = packetJsonSerializer.toJson(packet);
+            String json = exchangePacketProvider.toSecureJson(packet);
             LOG.info("Sending P={}, G={}", p, g);
             sendReply(socket, json);
         });
@@ -66,7 +62,7 @@ public class SecureServer extends Server {
             Packet packet = new PacketBuilder(encryptionName)
                     .setPublicKey(publicKey)
                     .createExchangePacket();
-            String json = packetJsonSerializer.toJson(packet);
+            String json = exchangePacketProvider.toSecureJson(packet);
             LOG.info("Sending public key={}", publicKey);
             sendReply(socket, json);
         });
@@ -77,11 +73,10 @@ public class SecureServer extends Server {
             long userPublicKey = (long) msg.get(1);
             LOG.info("Received user's public key: {}", userPublicKey);
             diffieHellman.setOthersPublicKey(userPublicKey);
-            encryptionFactory.setSecretKey(diffieHellman.calculateSharedSecretKey());
             Packet packet = new PacketBuilder(encryptionName)
                     .setMessage("OK, server received your public key")
                     .createExchangePacket();
-            String json = packetJsonSerializer.toJson(packet);
+            String json = exchangePacketProvider.toSecureJson(packet);
             sendReply(socket, json);
         });
     }
@@ -93,7 +88,7 @@ public class SecureServer extends Server {
             Packet packet = new PacketBuilder(encryptionName)
                     .setMessage(RandomResponseProvider.get())
                     .createExchangePacket();
-            String json = packetJsonSerializer.toJson(packet);
+            String json = exchangePacketProvider.toSecureJson(packet);
             sendReply(socket, json);
         });
     }
@@ -103,9 +98,9 @@ public class SecureServer extends Server {
             LOG.info("Received user's request to change encryption method to: {}", msg.get(1));
             this.encryptionName = (String) msg.get(1);
             Packet packet = new PacketBuilder(encryptionName)
-                    .setMessage(String.format("OK, I'm changing encryption method to %s", this.encryptionName))
+                    .setMessage(String.format("OK, I'm changing message encryption method to '%s'", this.encryptionName))
                     .createExchangePacket();
-            String json = packetJsonSerializer.toJson(packet);
+            String json = exchangePacketProvider.toSecureJson(packet);
             sendReply(socket, json);
         });
     }

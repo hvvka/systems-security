@@ -6,7 +6,7 @@ public class PacketBuilder {
 
     private long g;
 
-    private String message;
+    private String message = "";
 
     private long publicKey;
 

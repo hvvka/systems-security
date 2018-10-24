@@ -5,13 +5,13 @@ import pwr.bsiui.message.model.Packet;
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
-public class ExchangePacket {
+public class ExchangePacketProvider {
 
     private final PacketJsonSerializer packetJsonSerializer;
 
     private final SecurePacketProvider securePacketProvider;
 
-    public ExchangePacket() {
+    public ExchangePacketProvider() {
         this.packetJsonSerializer = new PacketJsonSerializer();
         this.securePacketProvider = new SecurePacketProvider();
     }

@@ -12,13 +12,13 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
-public class ExchangePacketTest {
+public class ExchangePacketProviderTest {
 
-    private ExchangePacket exchangePacket;
+    private ExchangePacketProvider exchangePacketProvider;
 
     @Before
     public void setUp() {
-        exchangePacket = new ExchangePacket();
+        exchangePacketProvider = new ExchangePacketProvider();
     }
 
     @Test
@@ -27,10 +27,23 @@ public class ExchangePacketTest {
         Packet packet = new PacketBuilder("xor").setMessage("ABC").createExchangePacket();
 
         // when
-        String json = exchangePacket.toSecureJson(packet);
+        String json = exchangePacketProvider.toSecureJson(packet);
 
         // then
         String expectedJson = "{\"message\":\"cXJz\",\"encryption\":\"xor\"}";
+        JSONAssert.assertEquals(expectedJson, json, true);
+    }
+
+    @Test
+    public void toSecureJsonWithEmptyMessage() throws JSONException {
+        // given
+        Packet packet = new PacketBuilder("none").createExchangePacket();
+
+        // when
+        String json = exchangePacketProvider.toSecureJson(packet);
+
+        // then
+        String expectedJson = "{\"encryption\":\"none\"}";
         JSONAssert.assertEquals(expectedJson, json, true);
     }
 
@@ -40,10 +53,23 @@ public class ExchangePacketTest {
         String json = "{\"message\":\"cXJz\",\"encryption\":\"xor\"}";
 
         // when
-        Packet packet = exchangePacket.fromSecureJson(json);
+        Packet packet = exchangePacketProvider.fromSecureJson(json);
 
         // then
         Packet expectedPacket = new PacketBuilder("xor").setMessage("ABC").createExchangePacket();
+        assertEquals(expectedPacket, packet);
+    }
+
+    @Test
+    public void fromSecureJsonWithEmptyMessage() {
+        // given
+        String json = "{\"encryption\":\"caesar\"}";
+
+        // when
+        Packet packet = exchangePacketProvider.fromSecureJson(json);
+
+        // then
+        Packet expectedPacket = new PacketBuilder("caesar").createExchangePacket();
         assertEquals(expectedPacket, packet);
     }
 }

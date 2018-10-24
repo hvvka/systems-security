@@ -7,7 +7,10 @@ import java.util.Random;
  */
 class RandomResponseProvider {
 
-    private static final String[] RESPONSES = {"Hi", "I'm server", "Dadada", "Just a response mock", "I have limited response list"};
+    private static final String[] RESPONSES = {
+            "Hi", "I'm server", "Dadada", "Morning, sir", "Morning, madam", "Guten tag", "Hola, mi amigo",
+            "Guten morgen", "Ahoj", "Olá!", "Ciao", "Buenos días", "Buenos días, señor", "Willkommen"
+    };
 
     private RandomResponseProvider() {
         throw new IllegalStateException("Utility class!");

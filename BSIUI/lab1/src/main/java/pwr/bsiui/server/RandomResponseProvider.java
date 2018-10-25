@@ -1,6 +1,6 @@
 package pwr.bsiui.server;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
@@ -17,7 +17,6 @@ class RandomResponseProvider {
     }
 
     static String get() {
-        Random random = new Random();
-        return RESPONSES[random.nextInt() % RESPONSES.length];
+        return RESPONSES[ThreadLocalRandom.current().nextInt(RESPONSES.length)];
     }
 }

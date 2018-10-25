@@ -11,18 +11,18 @@ import java.io.IOException;
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
-public class PacketJsonSerializer {
+class PacketJsonSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(PacketJsonSerializer.class);
 
     private ObjectMapper mapper;
 
-    public PacketJsonSerializer() {
+    PacketJsonSerializer() {
         mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
     }
 
-    public String toJson(Packet packet) {
+    String toJson(Packet packet) {
         try {
             String json = mapper.writeValueAsString(packet);
             LOG.info("{}", json);
@@ -33,7 +33,7 @@ public class PacketJsonSerializer {
         return "";
     }
 
-    public Packet fromJson(String json) {
+    Packet fromJson(String json) {
         LOG.info("{}", json);
         try {
             return mapper.readValue(json, Packet.class);

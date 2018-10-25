@@ -1,5 +1,7 @@
 package pwr.bsiui.message;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * Implements Diffie–Hellman key exchange algorithm and helper methods.
  *
@@ -16,8 +18,9 @@ public class DiffieHellman {
 
     public DiffieHellman(long yourPrivateKey) {
         this.yourPrivateKey = yourPrivateKey;
-        // TODO: change these temporary values to something more sophisticated
         this.pgKeys = new PGKeys(2, 1);
+        // TODO: use this:
+        // this.pgKeys = new PGKeys();
     }
 
     public DiffieHellman(long p, long g, long yourPrivateKey) {
@@ -64,6 +67,11 @@ public class DiffieHellman {
         private final long p;
 
         private final long g;
+
+        PGKeys() {
+            this.p = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+            this.g = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+        }
 
         PGKeys(long p, long g) {
             this.p = p;

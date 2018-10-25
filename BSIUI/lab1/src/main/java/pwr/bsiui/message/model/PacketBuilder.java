@@ -6,6 +6,8 @@ public class PacketBuilder {
 
     private long g;
 
+    private String id;
+
     private String message = "";
 
     private long publicKey;
@@ -29,6 +31,11 @@ public class PacketBuilder {
         return this;
     }
 
+    public PacketBuilder setId(String id) {
+        this.id = id;
+        return this;
+    }
+
     public PacketBuilder setMessage(String message) {
         this.message = message;
         return this;
@@ -45,6 +52,6 @@ public class PacketBuilder {
     }
 
     public Packet createExchangePacket() {
-        return new Packet(p, g, message, publicKey, encryption);
+        return new Packet(p, g, id, message, publicKey, encryption);
     }
 }

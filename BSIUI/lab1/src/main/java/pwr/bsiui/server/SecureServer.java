@@ -8,6 +8,8 @@ import pwr.bsiui.message.ExchangePacketProvider;
 import pwr.bsiui.message.model.Packet;
 import pwr.bsiui.message.model.PacketBuilder;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
@@ -15,7 +17,7 @@ public class SecureServer extends Server {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecureServer.class);
 
-    private static final long privateKey = 5;  // TODO: generate random value
+    private static final long PRIVATE_KEY = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
 
     private final DiffieHellman diffieHellman;
 
@@ -25,9 +27,13 @@ public class SecureServer extends Server {
 
     public SecureServer(int port) {
         super(port);
-        this.diffieHellman = new DiffieHellman(privateKey);
+        this.diffieHellman = new DiffieHellman(PRIVATE_KEY);
         this.exchangePacketProvider = new ExchangePacketProvider();
         this.encryptionName = "none";
+    }
+
+    public synchronized void broadcastMessage(Packet packet) {
+        // TODO: implement this method and use in 'registerResponseSendMessage'
     }
 
     @Override
@@ -70,9 +76,9 @@ public class SecureServer extends Server {
 
     private void registerResponseSendPublicKey() {
         registerMethod("SEND_PUBLIC_KEY", (msg, socket) -> {
-            long userPublicKey = (long) msg.get(1);
-            LOG.info("Received user's public key: {}", userPublicKey);
-            diffieHellman.setOthersPublicKey(userPublicKey);
+            Packet receivedPacket = exchangePacketProvider.fromSecureJson((String) msg.get(1));
+            LOG.info("Received user's public key: {}", receivedPacket.getPublicKey());
+            diffieHellman.setOthersPublicKey(receivedPacket.getPublicKey());
             Packet packet = new PacketBuilder(encryptionName)
                     .setMessage("OK, server received your public key")
                     .createExchangePacket();
@@ -83,7 +89,8 @@ public class SecureServer extends Server {
 
     private void registerResponseSendMessage() {
         registerMethod("SEND_MESSAGE", (msg, socket) -> {
-            LOG.info("Received message from user: {}", msg.get(1));
+            Packet receivedPacket = exchangePacketProvider.fromSecureJson((String) msg.get(1));
+            LOG.info("Received message '{}' from user '{}'", receivedPacket.getMessage(), receivedPacket.getId());
             broadcastMessage(msg);  // TODO: change encryption method according to client
             Packet packet = new PacketBuilder(encryptionName)
                     .setMessage(RandomResponseProvider.get())
@@ -95,8 +102,9 @@ public class SecureServer extends Server {
 
     private void registerResponseChangeEncryptionMethod() {
         registerMethod("SEND_CHANGE_ENCRYPTION_METHOD", (msg, socket) -> {
-            LOG.info("Received user's request to change encryption method to: {}", msg.get(1));
-            this.encryptionName = (String) msg.get(1);
+            Packet receivedPacket = exchangePacketProvider.fromSecureJson((String) msg.get(1));
+            LOG.info("Received user's request to change encryption method to: {}", receivedPacket.getEncryption());
+            this.encryptionName = receivedPacket.getEncryption();
             Packet packet = new PacketBuilder(encryptionName)
                     .setMessage(String.format("OK, I'm changing message encryption method to '%s'", this.encryptionName))
                     .createExchangePacket();

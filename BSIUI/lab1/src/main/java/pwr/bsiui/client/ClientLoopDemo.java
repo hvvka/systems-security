@@ -4,10 +4,12 @@ import com.blogspot.debukkitsblog.net.Client;
 import pwr.bsiui.message.DiffieHellman;
 import pwr.bsiui.message.ExchangePacketProvider;
 import pwr.bsiui.message.model.Packet;
+import pwr.bsiui.message.model.PacketBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
@@ -16,19 +18,19 @@ class ClientLoopDemo {
 
     private static final Map<Integer, String> MENU = new HashMap<>();
 
-    private static final long privateKey = 10;  // TODO: generate random value
-
     static {
-        MENU.put(1, "1. Request [server] public keys (P and G)");
-        MENU.put(2, "2. Request [server] public key");
-        MENU.put(3, "3. View your private key");
-        MENU.put(4, "4. View your public key");
-        MENU.put(5, "5. View shared secret key");
-        MENU.put(6, "6. Send your public key to [server]");
-        MENU.put(7, "7. Send message to [server]");
-        MENU.put(8, "8. Change message encryption [\"none\", \"xor\", \"caesar\"]");
-        MENU.put(9, "9. Stop");
+        MENU.put(1, "Request [server] public keys (P and G)");
+        MENU.put(2, "Request [server] public key");
+        MENU.put(3, "View your private key");
+        MENU.put(4, "View your public key");
+        MENU.put(5, "View shared secret key");
+        MENU.put(6, "Send your public key to [server]");
+        MENU.put(7, "Send message to [server]");
+        MENU.put(8, "Change message encryption [\"none\", \"xor\", \"caesar\"]");
+        MENU.put(9, "Stop");
     }
+
+    private final long privateKey;
 
     private final Client client;
 
@@ -38,18 +40,22 @@ class ClientLoopDemo {
 
     private DiffieHellman diffieHellman;
 
+    private String encryptionName;
+
     private boolean running;
 
     ClientLoopDemo(int port) {
+        this.privateKey = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
         this.client = new SecureClient("localhost", port);
         this.exchangePacketProvider = new ExchangePacketProvider();
         this.reader = new Scanner(System.in);
+        this.encryptionName = "none";
         this.running = true;
     }
 
     void start() {
         while (running) {
-            MENU.values().forEach(System.out::println);
+            MENU.keySet().forEach(k -> System.out.printf("%d. %s\n", k, MENU.get(k)));
             switch (reader.nextInt()) {
                 case 1: requestPG();
                     break;
@@ -97,25 +103,36 @@ class ClientLoopDemo {
             requestPG();
             requestPublicKey();
         }
-        String response = (String) client.sendMessage("SEND_PUBLIC_KEY", diffieHellman.calculatePublicKey()).get(1);
-        Packet packet = exchangePacketProvider.fromSecureJson(response);
-        System.err.printf(">> %s\n", packet.getMessage());
+        Packet packet = new PacketBuilder(encryptionName)
+                .setId(Client.DEFAULT_USER_ID)
+                .setPublicKey(diffieHellman.calculatePublicKey())
+                .createExchangePacket();
+        String response = (String) client.sendMessage("SEND_PUBLIC_KEY", exchangePacketProvider.toSecureJson(packet)).get(1);
+        Packet receivedPacket = exchangePacketProvider.fromSecureJson(response);
+        System.err.printf(">> %s\n", receivedPacket.getMessage());
     }
 
     private void sendMessage() {
         System.out.print("Type in your message: ");
         reader.nextLine();
         String message = reader.nextLine();
-        String response = (String) client.sendMessage("SEND_MESSAGE", message).get(1);
-        Packet packet = exchangePacketProvider.fromSecureJson(response);
-        System.err.printf(">> Response: '%s'\n", packet.getMessage());
+        Packet packet = new PacketBuilder(encryptionName)
+                .setId(Client.DEFAULT_USER_ID)
+                .setMessage(message)
+                .createExchangePacket();
+        String response = (String) client.sendMessage("SEND_MESSAGE", exchangePacketProvider.toSecureJson(packet)).get(1);
+        Packet receivedPacket = exchangePacketProvider.fromSecureJson(response);
+        System.err.printf(">> Response: '%s'\n", receivedPacket.getMessage());
     }
 
     private void changeMessageEncryption() {
         System.out.print("Choose new encryption method: ");
-        String encryption = reader.next();
-        String response = (String) client.sendMessage("SEND_CHANGE_ENCRYPTION_METHOD", encryption).get(1);
-        Packet packet = exchangePacketProvider.fromSecureJson(response);
-        System.err.printf(">> %s\n", packet.getMessage());
+        this.encryptionName = reader.next();
+        Packet packet = new PacketBuilder(encryptionName)
+                .setId(Client.DEFAULT_USER_ID)
+                .createExchangePacket();
+        String response = (String) client.sendMessage("SEND_CHANGE_ENCRYPTION_METHOD", exchangePacketProvider.toSecureJson(packet)).get(1);
+        Packet receivedPacket = exchangePacketProvider.fromSecureJson(response);
+        System.err.printf(">> %s\n", receivedPacket.getMessage());
     }
 }

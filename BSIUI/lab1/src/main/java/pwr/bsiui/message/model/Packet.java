@@ -9,6 +9,8 @@ public class Packet {
 
     private long g;
 
+    private String id;
+
     private String message = "";
 
     private long publicKey;
@@ -19,9 +21,10 @@ public class Packet {
         // used by Jackson 2.x
     }
 
-    public Packet(long p, long g, String message, long publicKey, String encryption) {
+    public Packet(long p, long g, String id, String message, long publicKey, String encryption) {
         this.p = p;
         this.g = g;
+        this.id = id;
         this.message = message;
         this.publicKey = publicKey;
         this.encryption = encryption;
@@ -33,6 +36,10 @@ public class Packet {
 
     public long getG() {
         return g;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getMessage() {

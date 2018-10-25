@@ -32,6 +32,6 @@ class SecurePacketProvider {
 
     private Packet cryptMessage(Packet packet, MessageEncoder messageEncoder) {
         String decodedMessage = messageEncoder.getMessage();
-        return new Packet(packet.getP(), packet.getG(), decodedMessage, packet.getPublicKey(), packet.getEncryption());
+        return new Packet(packet.getP(), packet.getG(), packet.getId(), decodedMessage, packet.getPublicKey(), packet.getEncryption());
     }
 }

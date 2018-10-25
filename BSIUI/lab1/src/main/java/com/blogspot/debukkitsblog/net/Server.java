@@ -221,7 +221,6 @@ public abstract class Server {
                                     break;
                                 }
                             }
-
                         }
 
                     } catch (SocketException e) {
@@ -304,7 +303,7 @@ public abstract class Server {
         } catch (IOException e) {
             onLogError("[Server] [Send Message] Error: " + e.getMessage());
 
-            // if an error occured: remove client from list
+            // if an error occurred: remove client from list
             if (toBeDeleted != null) {
                 toBeDeleted.add(remoteClient);
             } else {
@@ -579,16 +578,19 @@ public abstract class Server {
     }
 
     /**
-     * A RemoteClient representating a client connected to this serverSocket storing an id
+     * A RemoteClient representing a client connected to this serverSocket storing an id
      * for identification and a socket for communication.
      */
     protected class RemoteClient {
-        private String id;
-        private String group;
-        private Socket socket;
+
+        private final String id;
+
+        private final String group;
+
+        private final Socket socket;
 
         /**
-         * Creates a RemoteClient representating a client connected to this serverSocket
+         * Creates a RemoteClient representing a client connected to this serverSocket
          * storing an id for identification and a socket for communication. The client
          * will be member of the default group.
          *
@@ -602,7 +604,7 @@ public abstract class Server {
         }
 
         /**
-         * Creates a RemoteClient representating a client connected to this serverSocket
+         * Creates a RemoteClient representing a client connected to this serverSocket
          * storing an id for identification and a socket for communication. The client
          * can be set as a member of a group of clients to receive messages broadcasted
          * to a group.

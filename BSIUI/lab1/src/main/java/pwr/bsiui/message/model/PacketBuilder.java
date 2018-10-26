@@ -15,6 +15,7 @@ public class PacketBuilder {
     private String encryption;
 
     public PacketBuilder() {
+        this.encryption = "none";
     }
 
     public PacketBuilder(String encryption) {

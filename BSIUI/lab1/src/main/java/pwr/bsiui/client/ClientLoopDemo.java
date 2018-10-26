@@ -21,12 +21,12 @@ class ClientLoopDemo {
     static {
         MENU.put(1, "Request [server] public keys (P and G)");
         MENU.put(2, "Request [server] public key");
-        MENU.put(3, "View your private key");
-        MENU.put(4, "View your public key");
-        MENU.put(5, "View shared secret key");
-        MENU.put(6, "Send your public key to [server]");
-        MENU.put(7, "Send message to [server]");
-        MENU.put(8, "Change message encryption [\"none\", \"xor\", \"caesar\"]");
+        MENU.put(3, "Send your public key to [server]");
+        MENU.put(4, "Send broadcast message to [server]");
+        MENU.put(5, "Change message encryption [\"none\", \"xor\", \"caesar\"]");
+        MENU.put(6, "View your private key");
+        MENU.put(7, "View your public key");
+        MENU.put(8, "View shared secret key");
         MENU.put(9, "Stop");
     }
 
@@ -47,10 +47,19 @@ class ClientLoopDemo {
     ClientLoopDemo(int port) {
         this.privateKey = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
         this.client = new SecureClient("localhost", port);
+        registerReceiveBroadcast();
         this.exchangePacketProvider = new ExchangePacketProvider();
         this.reader = new Scanner(System.in);
         this.encryptionName = "none";
         this.running = true;
+    }
+
+    private void registerReceiveBroadcast() {
+        this.client.registerMethod("BROADCAST", (msg, socket) -> {
+            System.err.println(msg.get(1));
+            Packet packet = exchangePacketProvider.fromSecureJson((String) msg.get(1));
+            System.err.printf("Received broadcast message from user %s: '%s'", packet.getId(), packet.getMessage());
+        });
     }
 
     void start() {
@@ -61,17 +70,17 @@ class ClientLoopDemo {
                     break;
                 case 2: requestPublicKey();
                     break;
-                case 3: System.err.printf("Your private key: %s\n", privateKey);
+                case 3: sendYourPublicKey();
                     break;
-                case 4: System.err.printf("Your public key: %s\n", diffieHellman.calculatePublicKey());
+                case 4: sendMessage();
                     break;
-                case 5: System.err.printf("Shared secret key: %s\n", diffieHellman.calculateSharedSecretKey());
+                case 5: changeMessageEncryption();
                     break;
-                case 6: sendYourPublicKey();
+                case 6: System.err.printf("Your private key: %s\n", privateKey);
                     break;
-                case 7: sendMessage();
+                case 7: System.err.printf("Your public key: %s\n", diffieHellman.calculatePublicKey());
                     break;
-                case 8: changeMessageEncryption();
+                case 8: System.err.printf("Shared secret key: %s\n", diffieHellman.calculateSharedSecretKey());
                     break;
                 case 9: running = false;
                     client.stop();

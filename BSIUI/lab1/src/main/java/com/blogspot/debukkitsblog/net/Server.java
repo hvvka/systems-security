@@ -29,7 +29,7 @@ public abstract class Server {
 
     private ServerSocket serverSocket;
     private int port;
-    private List<RemoteClient> clients;
+    protected List<RemoteClient> clients;
     private List<RemoteClient> toBeDeleted;
 
     private Thread listeningThread;

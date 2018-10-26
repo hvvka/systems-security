@@ -18,9 +18,7 @@ public class DiffieHellman {
 
     public DiffieHellman(long yourPrivateKey) {
         this.yourPrivateKey = yourPrivateKey;
-        this.pgKeys = new PGKeys(2, 1);
-        // TODO: use this:
-        // this.pgKeys = new PGKeys();
+        this.pgKeys = new PGKeys(23, 5);
     }
 
     public DiffieHellman(long p, long g, long yourPrivateKey) {
@@ -64,10 +62,17 @@ public class DiffieHellman {
 
     private static class PGKeys {
 
+        /**
+         * Primary number.
+         */
         private final long p;
 
+        /**
+         * Primitive root modulo p.
+         */
         private final long g;
 
+        // TODO: Count primitive P and G as primitive root modulo p
         PGKeys() {
             this.p = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
             this.g = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);

@@ -19,3 +19,27 @@ dependencies {
     testCompile group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4'
     testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.5.0'
 }
+
+task buildServerJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': rootProject.name + '-server',
+                'Implementation-Version': version,
+                'Main-Class': 'pwr.bsiui.server.ServerRunner'
+    }
+    baseName = 'server'
+    archiveName = "${baseName}.${extension}"
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task buildClientJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': rootProject.name + '-client',
+                'Implementation-Version': version,
+                'Main-Class': 'pwr.bsiui.client.ClientRunner'
+    }
+    baseName = 'client'
+    archiveName = "${baseName}.${extension}"
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}

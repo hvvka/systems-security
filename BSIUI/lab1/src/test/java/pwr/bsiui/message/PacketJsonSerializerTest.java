@@ -75,7 +75,7 @@ public class PacketJsonSerializerTest {
     @Test
     public void fromEmptyJson() {
         // given
-        String json = "{}";
+        String json = "{\"encryption\":\"none\"}";
 
         // when
         Packet packet = packetJsonSerializer.fromJson(json);

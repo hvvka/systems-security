@@ -54,6 +54,10 @@ public class Packet {
         return encryption;
     }
 
+    public void setEncryption(String encryption) {
+        this.encryption = encryption;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

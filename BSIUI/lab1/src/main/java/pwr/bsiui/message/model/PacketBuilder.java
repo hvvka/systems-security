@@ -1,16 +1,18 @@
 package pwr.bsiui.message.model;
 
+import java.math.BigInteger;
+
 public class PacketBuilder {
 
-    private long p;
+    private BigInteger p;
 
-    private long g;
+    private BigInteger g;
 
     private String id;
 
     private String message = "";
 
-    private long publicKey;
+    private BigInteger publicKey;
 
     private String encryption;
 
@@ -22,12 +24,12 @@ public class PacketBuilder {
         this.encryption = encryption;
     }
 
-    public PacketBuilder setP(long p) {
+    public PacketBuilder setP(BigInteger p) {
         this.p = p;
         return this;
     }
 
-    public PacketBuilder setG(long g) {
+    public PacketBuilder setG(BigInteger g) {
         this.g = g;
         return this;
     }
@@ -42,7 +44,7 @@ public class PacketBuilder {
         return this;
     }
 
-    public PacketBuilder setPublicKey(long publicKey) {
+    public PacketBuilder setPublicKey(BigInteger publicKey) {
         this.publicKey = publicKey;
         return this;
     }

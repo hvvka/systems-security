@@ -1,19 +1,21 @@
 package pwr.bsiui.message.model;
 
+import java.math.BigInteger;
+
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 public class Packet {
 
-    private long p;
+    private BigInteger p;
 
-    private long g;
+    private BigInteger g;
 
     private String id;
 
     private String message = "";
 
-    private long publicKey;
+    private BigInteger publicKey;
 
     private String encryption;
 
@@ -21,7 +23,7 @@ public class Packet {
         // used by Jackson 2.x
     }
 
-    public Packet(long p, long g, String id, String message, long publicKey, String encryption) {
+    public Packet(BigInteger p, BigInteger g, String id, String message, BigInteger publicKey, String encryption) {
         this.p = p;
         this.g = g;
         this.id = id;
@@ -30,11 +32,11 @@ public class Packet {
         this.encryption = encryption;
     }
 
-    public long getP() {
+    public BigInteger getP() {
         return p;
     }
 
-    public long getG() {
+    public BigInteger getG() {
         return g;
     }
 
@@ -46,7 +48,7 @@ public class Packet {
         return message;
     }
 
-    public long getPublicKey() {
+    public BigInteger getPublicKey() {
         return publicKey;
     }
 
@@ -63,21 +65,23 @@ public class Packet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Packet that = (Packet) o;
+        Packet packet = (Packet) o;
 
-        if (p != that.p) return false;
-        if (g != that.g) return false;
-        if (publicKey != that.publicKey) return false;
-        if (message != null ? !message.equals(that.message) : that.message != null) return false;
-        return encryption != null ? encryption.equals(that.encryption) : that.encryption == null;
+        if (p != null ? !p.equals(packet.p) : packet.p != null) return false;
+        if (g != null ? !g.equals(packet.g) : packet.g != null) return false;
+        if (id != null ? !id.equals(packet.id) : packet.id != null) return false;
+        if (message != null ? !message.equals(packet.message) : packet.message != null) return false;
+        if (publicKey != null ? !publicKey.equals(packet.publicKey) : packet.publicKey != null) return false;
+        return encryption != null ? encryption.equals(packet.encryption) : packet.encryption == null;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (p ^ (p >>> 32));
-        result = 31 * result + (int) (g ^ (g >>> 32));
+        int result = p != null ? p.hashCode() : 0;
+        result = 31 * result + (g != null ? g.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + (message != null ? message.hashCode() : 0);
-        result = 31 * result + (int) (publicKey ^ (publicKey >>> 32));
+        result = 31 * result + (publicKey != null ? publicKey.hashCode() : 0);
         result = 31 * result + (encryption != null ? encryption.hashCode() : 0);
         return result;
     }

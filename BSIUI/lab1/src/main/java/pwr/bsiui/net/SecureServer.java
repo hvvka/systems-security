@@ -10,9 +10,13 @@ import pwr.bsiui.message.model.PacketBuilder;
 import pwr.bsiui.net.server.ExchangeDetails;
 import pwr.bsiui.net.server.RandomResponseProvider;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Server that uses Diffie–Hellman protocol with JSON message exchange and interacts with new clients.
@@ -24,7 +28,7 @@ public class SecureServer extends Server {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecureServer.class);
 
-    private static final long PRIVATE_KEY = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+    private static final BigInteger PRIVATE_KEY = BigInteger.valueOf(ThreadLocalRandom.current().nextInt(500));
 
     private final DiffieHellman diffieHellman;
 
@@ -34,6 +38,7 @@ public class SecureServer extends Server {
 
     public SecureServer(int port) {
         super(port);
+        LOG.info("Server's private key: {}", PRIVATE_KEY);
         this.diffieHellman = new DiffieHellman(PRIVATE_KEY);
         this.exchangePacketProvider = new ExchangePacketProvider();
         this.clientEncryption = new HashMap<>();
@@ -45,6 +50,7 @@ public class SecureServer extends Server {
                 .forEach(c -> {
                     String encryption = this.clientEncryption.get(c.getId()).getEncryption();
                     packet.setEncryption(encryption);
+                    exchangePacketProvider.setSecretKey(clientEncryption.get(c.getId()).getSecretKey());
                     sendMessage(c.getId(), "BROADCAST", this.exchangePacketProvider.toSecureJson(packet));
                 });
     }
@@ -58,18 +64,18 @@ public class SecureServer extends Server {
         registerResponse("SEND_CHANGE_ENCRYPTION_METHOD", this::respondClientChangeEncryption);
     }
 
-    private void registerRequest(String methodName, Action serverAction) {
+    private void registerRequest(String methodName, Supplier<Packet> packetSupplier) {
         registerMethod(methodName, (msg, socket) -> {
             LOG.info("Received {}", msg.get(0));
-            Packet packet = serverAction.perform();
+            Packet packet = packetSupplier.get();
             String json = exchangePacketProvider.toSecureJson(packet);
             sendReply(socket, json);
         });
     }
 
     private Packet sendPG() {
-        long p = diffieHellman.getP();
-        long g = diffieHellman.getG();
+        BigInteger p = diffieHellman.getP();
+        BigInteger g = diffieHellman.getG();
         LOG.info("Sending P={}, G={}", p, g);
         return new PacketBuilder()
                 .setP(p)
@@ -78,17 +84,22 @@ public class SecureServer extends Server {
     }
 
     private Packet sendPublicKey() {
-        long publicKey = diffieHellman.calculatePublicKey();
+        BigInteger publicKey = diffieHellman.calculatePublicKey();
         LOG.info("Sending public key={}", publicKey);
         return new PacketBuilder()
                 .setPublicKey(publicKey)
                 .createExchangePacket();
     }
 
-    private void registerResponse(String methodName, ServerResponse serverResponse) {
+    private void registerResponse(String methodName, Function<Packet, Packet> packetPacketFunction) {
         registerMethod(methodName, (msg, socket) -> {
+            Optional<String> clientId = clientEncryption.keySet()
+                    .stream()
+                    .filter(((String) msg.get(1))::contains)
+                    .findFirst();
+            clientId.ifPresent(id -> exchangePacketProvider.setSecretKey(clientEncryption.get(id).getSecretKey()));
             Packet receivedPacket = exchangePacketProvider.fromSecureJson((String) msg.get(1));
-            Packet packet = serverResponse.perform(receivedPacket);
+            Packet packet = packetPacketFunction.apply(receivedPacket);
             String json = exchangePacketProvider.toSecureJson(packet);
             sendReply(socket, json);
         });
@@ -96,8 +107,9 @@ public class SecureServer extends Server {
 
     private Packet respondClientPublicKey(Packet receivedPacket) {
         LOG.info("Received user's public key: {}", receivedPacket.getPublicKey());
-        clientEncryption.put(receivedPacket.getId(), new ExchangeDetails(receivedPacket.getPublicKey(), receivedPacket.getEncryption()));
         diffieHellman.setOthersPublicKey(receivedPacket.getPublicKey());
+        clientEncryption.put(receivedPacket.getId(), new ExchangeDetails(receivedPacket.getPublicKey(),
+                diffieHellman.calculateSharedSecretKey(), receivedPacket.getEncryption()));
         return new PacketBuilder(receivedPacket.getEncryption())
                 .setMessage("OK, server received your public key")
                 .createExchangePacket();

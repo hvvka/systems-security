@@ -1,5 +1,7 @@
 package pwr.bsiui.net.server;
 
+import java.math.BigInteger;
+
 /**
  * Model class for storing client-specific information.
  *
@@ -7,17 +9,24 @@ package pwr.bsiui.net.server;
  */
 public class ExchangeDetails {
 
-    private final long publicKey;
+    private final BigInteger publicKey;
+
+    private final BigInteger secretKey;
 
     private String encryption;
 
-    public ExchangeDetails(long publicKey, String encryption) {
+    public ExchangeDetails(BigInteger publicKey, BigInteger secretKey, String encryption) {
         this.publicKey = publicKey;
+        this.secretKey = secretKey;
         this.encryption = encryption;
     }
 
-    public long getPublicKey() {
+    public BigInteger getPublicKey() {
         return publicKey;
+    }
+
+    public BigInteger getSecretKey() {
+        return secretKey;
     }
 
     public String getEncryption() {

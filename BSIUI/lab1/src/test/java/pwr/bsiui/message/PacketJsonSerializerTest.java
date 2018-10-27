@@ -7,6 +7,8 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import pwr.bsiui.message.model.Packet;
 import pwr.bsiui.message.model.PacketBuilder;
 
+import java.math.BigInteger;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -25,8 +27,8 @@ public class PacketJsonSerializerTest {
     public void toJson() throws JSONException {
         // given
         Packet packet = new PacketBuilder()
-                .setP(2)
-                .setG(1)
+                .setP(BigInteger.valueOf(23))
+                .setG(BigInteger.valueOf(5))
                 .setMessage("hi")
                 .setEncryption("none")
                 .createExchangePacket();
@@ -35,7 +37,7 @@ public class PacketJsonSerializerTest {
         String json = packetJsonSerializer.toJson(packet);
 
         // then
-        String expectedJson = "{\"p\":2,\"g\":1,\"message\":\"hi\",\"encryption\":\"none\"}";
+        String expectedJson = "{\"p\":23,\"g\":5,\"message\":\"hi\",\"encryption\":\"none\"}";
         JSONAssert.assertEquals(expectedJson, json, true);
     }
 
@@ -57,15 +59,15 @@ public class PacketJsonSerializerTest {
     @Test
     public void fromJson() {
         // given
-        String json = "{\"p\":2,\"g\":1,\"message\":\"hi\",\"encryption\":\"none\"}";
+        String json = "{\"p\":23,\"g\":5,\"message\":\"hi\",\"encryption\":\"none\"}";
 
         // when
         Packet packet = packetJsonSerializer.fromJson(json);
 
         // then
         Packet expectedPacket = new PacketBuilder()
-                .setG(1)
-                .setP(2)
+                .setP(BigInteger.valueOf(23))
+                .setG(BigInteger.valueOf(5))
                 .setEncryption("none")
                 .setMessage("hi")
                 .createExchangePacket();

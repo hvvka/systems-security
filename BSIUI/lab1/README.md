@@ -57,13 +57,18 @@ _S_ – współdzielona (przez serwer i użytkownika) tajna liczba, klucz sekret
 
    **Uzasadnienie**: zostały wykorzystane:
       
-   - interfejsy funkcyjne (adnotacja `@FunctionalInterface` dla interfejsu `MessageEncoder`, 
-   z którego korzystają metody w [SecurePacketProvider](src/main/java/pwr/bsiui/message/SecurePacketProvider.java)),
+   - interfejsy funkcyjne (adnotacja `@FunctionalInterface` dla interfejsu `MessageEncoder` używana w
+   metodach z [SecurePacketProvider](src/main/java/pwr/bsiui/message/SecurePacketProvider.java), 
+   interfejsy `Supplier<T>`, `Consumer<T>`, `Function<T, R>` w [ClientLoop](src/main/java/pwr/bsiui/net/ClientLoop.java) 
+   i [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)
    - wyrażenia lambda (klasy: [SecurePacketProvider](src/main/java/pwr/bsiui/message/SecurePacketProvider.java), 
-   [ClientLoopDemo](src/main/java/pwr/bsiui/net/ClientLoopDemo.java), [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java), 
+   [ClientLoop](src/main/java/pwr/bsiui/net/ClientLoop.java), [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java), 
    [Client](src/main/java/com/blogspot/debukkitsblog/net/Client.java), [Server](src/main/java/com/blogspot/debukkitsblog/net/Server.java)),
-   - _Java Stream API_ dla operacji na kolekcjach (metoda `forEach` z interfejsu `java.lang.Iterable`, 
-   użyto w klasach [ClientLoopDemo](src/main/java/pwr/bsiui/net/ClientLoopDemo.java) oraz 
+   - _Java Stream API_ dla operacji na kolekcjach (np. metoda `forEach` z interfejsu `java.lang.Iterable` czy `filter`
+   użyte w klasach [ClientLoop](src/main/java/pwr/bsiui/net/ClientLoop.java) oraz 
+   [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)),
+   - klasa Optional ([SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)),
+   - przekazywanie referencji do metod ([ClientLoop](src/main/java/pwr/bsiui/net/ClientLoop.java), 
    [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)).
 
 
@@ -86,7 +91,7 @@ $ java -jar client.jar
 
 ### Kompilacja archiwum
 
-Do skompilowania projektu należy użyć zadania zdefiniowanego w `build.gradle` i dołączonego skryptu Gradle Wrapper:
+Do skompilowania projektu należy użyć zadań zdefiniowanych w `build.gradle` i dołączonego skryptu Gradle Wrapper:
 
 ```bash
 $ ./gradlew buildServerJar
@@ -109,7 +114,7 @@ Przykładowy JSON z wszystkimi wartościami wypełnionymi:
     "g": "5",
     "id": "e761c267-f6a9-41ed-b2c5-ff6a32d8f4a1",
     "message": "{ZWVRAEZ@ZG\Az[\CV^Javrw~vz__QV[V_CUF_G\J\F",
-    "publicKey": "1234",
+    "publicKey": "1230",
     "encryption": "xor" 
 }
 ```
@@ -118,7 +123,7 @@ W strukturze można przesłać klucze publiczne _P_ i _G_.
 
 Gdy adresatem wiadomości jest użytkownik, to powinien podpisać ją przez uzupełnienie _id_.
 
-Klucz publiczny wyliczany przez instancję klasy [DiffieHellman](src/main/java/pwr/bsiui/message/DiffieHellman.java), a 
+Klucz publiczny jest wyliczany przez instancję klasy [DiffieHellman](src/main/java/pwr/bsiui/message/DiffieHellman.java), a 
 następnie przesłany przy nawiązywaniu sesji z serwerem, w celu wyznaczenia klucza sekretu.
 
 
@@ -131,7 +136,7 @@ Służą do tego dwie specjalizowane klasy:
    Przy użyciu domyślnego konstruktora, szyfrowanie wiadomości zostaje
    ustawione na "none". W parametryzowanym konstruktorze można podać inne ciągi znaków, które są przypisane 
    do danego szyfrowania. Czyli dla aplikacji są to także "caesar" i "xor". Oprócz tego można ustawić wszystkie zmienne, 
-   wymienione w JSONie w poprzedniej sekcji.
+   wymienione w JSONie z poprzedniej sekcji.
    
 - `ExchangePacketProvider` – dostarcza dwie metody o sygnaturach: `toSecureJson(pakiet: Packet): String` 
    oraz `fromSecureJson(json: string): Packet`.
@@ -148,9 +153,10 @@ Przykłady użycia obu klas można znaleźć w klasie testowej [ExchangePacketPr
 ### Dodawanie nowych sposobów szyfrowania
 
 W pakiecie [pwr.bsiui.message.encryption](src/main/java/pwr/bsiui/message/encryption) zdefiniowane są 3 sposoby szyfrowania. 
-Dodanie kolejnego szyfrowania jest równoznaczne ze stworzeniem klasy implementującej interfejs `Encryption` z tego pakietu.
+Dodanie kolejnego szyfrowania jest równoznaczne ze stworzeniem klasy implementującej interfejs [Encryption](src/main/java/pwr/bsiui/message/encryption/Encryption.java) z tego pakietu.
 
-Następnie należy zmodyfikować klasę `SecureServer`, aby udostępniał nowy sposób szyfrowania.
+Następnie należy zmodyfikować klasę [EncryptionFactory](src/main/java/pwr/bsiui/message/encryption/EncryptionFactory.java), aby udostępniała nowy sposób szyfrowania.
+
 
 
 
@@ -173,7 +179,7 @@ W projekcie znajdują się komentarze [Javadoc][] dla istotnych części kodu, k
 Zbyt wiele komentarzy mogłoby zaciemnić zrozumienie kodu (tworzyć redundancję), 
 który został napisany w sposób samo-komentujący.
 
-Implementację przyspieszyło napisanie testów jednostkowych potwierdzające poprawne działanie kluczowych fragmentów zadania
+Implementację przyspieszyło napisanie testów jednostkowych potwierdzające poprawne działanie kluczowych fragmentów  
 tj. sposobów szyfrowania, algorytmu Diffiego–Hellmana, tworzenia pakietu do wymiany czy JSONa.
 
 Testy zostały napisane z wykorzystaniem szkieletów aplikacyjnych [JUnit][] i [Spock][].

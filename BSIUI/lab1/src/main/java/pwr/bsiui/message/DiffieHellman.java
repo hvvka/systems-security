@@ -13,16 +13,16 @@ public class DiffieHellman {
 
     private final PGKeys pgKeys;
 
-    private final long yourPrivateKey;
+    private final BigInteger yourPrivateKey;
 
-    private long othersPublicKey;
+    private BigInteger othersPublicKey;
 
-    public DiffieHellman(long yourPrivateKey) {
+    public DiffieHellman(BigInteger yourPrivateKey) {
         this.pgKeys = new PGKeys();
         this.yourPrivateKey = yourPrivateKey;
     }
 
-    public DiffieHellman(long p, long g, long yourPrivateKey) {
+    public DiffieHellman(BigInteger p, BigInteger g, BigInteger yourPrivateKey) {
         this.pgKeys = new PGKeys(p, g);
         this.yourPrivateKey = yourPrivateKey;
     }
@@ -32,8 +32,8 @@ public class DiffieHellman {
      *
      * @return public key that can be used for message exchange
      */
-    public long calculatePublicKey() {
-        return (long) (Math.pow(pgKeys.getG(), yourPrivateKey) % pgKeys.getP());
+    public BigInteger calculatePublicKey() {
+        return pgKeys.getG().modPow(yourPrivateKey, pgKeys.getP());
     }
 
     /**
@@ -41,23 +41,23 @@ public class DiffieHellman {
      *
      * @return secret key shared by both sides and used for secure communication
      */
-    public long calculateSharedSecretKey() {
-        return (long) Math.pow(othersPublicKey, yourPrivateKey) % pgKeys.getP();
+    public BigInteger calculateSharedSecretKey() {
+        return othersPublicKey.modPow(yourPrivateKey, pgKeys.getP());
     }
 
-    public long getP() {
+    public BigInteger getP() {
         return pgKeys.getP();
     }
 
-    public long getG() {
+    public BigInteger getG() {
         return pgKeys.getG();
     }
 
-    public long getOthersPublicKey() {
+    public BigInteger getOthersPublicKey() {
         return othersPublicKey;
     }
 
-    public void setOthersPublicKey(long othersPublicKey) {
+    public void setOthersPublicKey(BigInteger othersPublicKey) {
         this.othersPublicKey = othersPublicKey;
     }
 
@@ -69,28 +69,28 @@ public class DiffieHellman {
         /**
          * Primary number.
          */
-        private final long p;
+        private final BigInteger p;
 
         /**
          * Primitive root modulo p.
          */
-        private final long g;
+        private final BigInteger g;
 
         PGKeys() {
-            this.p = new BigInteger(63, 12, new SecureRandom()).longValue();
-            this.g = new BigInteger(String.valueOf(4 - new SecureRandom().nextInt(3))).longValue();
+            this.p = new BigInteger(63, 12, new SecureRandom());
+            this.g = new BigInteger(String.valueOf(4 - new SecureRandom().nextInt(3)));
         }
 
-        PGKeys(long p, long g) {
+        PGKeys(BigInteger p, BigInteger g) {
             this.p = p;
             this.g = g;
         }
 
-        long getP() {
+        BigInteger getP() {
             return p;
         }
 
-        long getG() {
+        BigInteger getG() {
             return g;
         }
     }

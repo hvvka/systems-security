@@ -3,6 +3,8 @@ package pwr.bsiui.message;
 import pwr.bsiui.message.encryption.EncryptionFactory;
 import pwr.bsiui.message.model.Packet;
 
+import java.math.BigInteger;
+
 @FunctionalInterface
 interface MessageEncoder {
     String getMessage(SecureMessage secureMessage);
@@ -24,15 +26,15 @@ class SecurePacketProvider {
         this.encryptionFactory = new EncryptionFactory();
     }
 
-    Packet encryptPacket(Packet packet, long secretKey) {
+    Packet encryptPacket(Packet packet, BigInteger secretKey) {
         return cryptMessage(packet, secureMessage -> secureMessage.encode(packet.getMessage()), secretKey);
     }
 
-    Packet decryptPacket(Packet packet, long secretKey) {
+    Packet decryptPacket(Packet packet, BigInteger secretKey) {
         return cryptMessage(packet, secureMessage -> secureMessage.decode(packet.getMessage()), secretKey);
     }
 
-    private Packet cryptMessage(Packet packet, MessageEncoder messageEncoder, long secretKey) {
+    private Packet cryptMessage(Packet packet, MessageEncoder messageEncoder, BigInteger secretKey) {
         String encryption = packet.getEncryption();
         if ("xor".equals(encryption)) this.encryptionFactory.setSecretKey(secretKey);
         SecureMessage secureMessage = new SecureMessage(encryptionFactory.getEncryption(packet.getEncryption()));

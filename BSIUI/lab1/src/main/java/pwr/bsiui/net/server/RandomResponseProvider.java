@@ -1,11 +1,13 @@
-package pwr.bsiui.server;
+package pwr.bsiui.net.server;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
+ * Random responses that server replies with every time client sends a message.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
-class RandomResponseProvider {
+public class RandomResponseProvider {
 
     private static final String[] RESPONSES = {
             "Hi", "I'm server", "Dadada", "Morning, sir", "Morning, madam", "Guten tag", "Hola, mi amigo",
@@ -16,7 +18,7 @@ class RandomResponseProvider {
         throw new IllegalStateException("Utility class!");
     }
 
-    static String get() {
+    public static String get() {
         return RESPONSES[ThreadLocalRandom.current().nextInt(RESPONSES.length)];
     }
 }

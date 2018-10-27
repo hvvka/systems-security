@@ -58,10 +58,13 @@ _S_ – współdzielona (przez serwer i użytkownika) tajna liczba, klucz sekret
    **Uzasadnienie**: zostały wykorzystane:
       
    - interfejsy funkcyjne (adnotacja `@FunctionalInterface` dla interfejsu `MessageEncoder`, 
-   z którego korzystają metody w `SecurePacketProvider`),
-   - wyrażenia lambda (klasy: `SecurePacketProvider`, `ClientLoopDemo`, `SecureServer`, `Client`, `Server`),
+   z którego korzystają metody w [SecurePacketProvider](src/main/java/pwr/bsiui/message/SecurePacketProvider.java)),
+   - wyrażenia lambda (klasy: [SecurePacketProvider](src/main/java/pwr/bsiui/message/SecurePacketProvider.java), 
+   [ClientLoopDemo](src/main/java/pwr/bsiui/net/ClientLoopDemo.java), [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java), 
+   [Client](src/main/java/com/blogspot/debukkitsblog/net/Client.java), [Server](src/main/java/com/blogspot/debukkitsblog/net/Server.java)),
    - _Java Stream API_ dla operacji na kolekcjach (metoda `forEach` z interfejsu `java.lang.Iterable`, 
-   użyto w klasie `ClientLoopDemo`).
+   użyto w klasach [ClientLoopDemo](src/main/java/pwr/bsiui/net/ClientLoopDemo.java) oraz 
+   [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)).
 
 
 
@@ -69,13 +72,13 @@ _S_ – współdzielona (przez serwer i użytkownika) tajna liczba, klucz sekret
 
 ### Uruchomienie archiwum JAR
 
-Aby skorzystać z komunikatora najpierw należy uruchomić instację serwera:
+Aby skorzystać z komunikatora najpierw należy uruchomić instancję serwera:
 
 ```bash
 $ java -jar server.jar
 ```
 
-Następnie można uruchomić dowolną liczbę instacji klienta:
+Następnie można uruchomić dowolną liczbę instancji klienta:
 
 ```bash
 $ java -jar client.jar
@@ -104,13 +107,20 @@ Przykładowy JSON z wszystkimi wartościami wypełnionymi:
 {
     "p": "23",
     "g": "5",
-    "id": "as_sf",
-    "message": "sdfs",
-    "publicKey":
-    "1234",
+    "id": "e761c267-f6a9-41ed-b2c5-ff6a32d8f4a1",
+    "message": "{ZWVRAEZ@ZG\Az[\CV^Javrw~vz__QV[V_CUF_G\J\F",
+    "publicKey": "1234",
     "encryption": "xor" 
 }
 ```
+
+W strukturze można przesłać klucze publiczne _P_ i _G_.
+
+Gdy adresatem wiadomości jest użytkownik, to powinien podpisać ją przez uzupełnienie _id_.
+
+Klucz publiczny wyliczany przez instancję klasy [DiffieHellman](src/main/java/pwr/bsiui/message/DiffieHellman.java), a 
+następnie przesłany przy nawiązywaniu sesji z serwerem, w celu wyznaczenia klucza sekretu.
+
 
 ### Tworzenie i odbieranie pakietu
 
@@ -118,9 +128,9 @@ Służą do tego dwie specjalizowane klasy:
 
 - `PacketBuilder` – budowniczy wiadomości. Korzysta z modelu `Packet`.
    
-   Przy użyciu domyślnego konstruktura, szyfrowanie wiadomości zostaje
-   ustawione na "none". W parametryzowanym kontruktorze można podać inne ciągi znaków, które są przypisane 
-   do danego szyfrowania. Czyli dla aplikacji są to także "caesar" i "xor". Opórcz tego można ustawić wszystkie zmienne, 
+   Przy użyciu domyślnego konstruktora, szyfrowanie wiadomości zostaje
+   ustawione na "none". W parametryzowanym konstruktorze można podać inne ciągi znaków, które są przypisane 
+   do danego szyfrowania. Czyli dla aplikacji są to także "caesar" i "xor". Oprócz tego można ustawić wszystkie zmienne, 
    wymienione w JSONie w poprzedniej sekcji.
    
 - `ExchangePacketProvider` – dostarcza dwie metody o sygnaturach: `toSecureJson(pakiet: Packet): String` 
@@ -129,7 +139,7 @@ Służą do tego dwie specjalizowane klasy:
    Metody pozwalają odpowiednio: utworzyć JSONa z pakietu wcześniej stworzonego przez budowniczego,
    przekonwertować JSONa na model używany w aplikacji, `Packet`.
    
-   Klasa została zaprojektowana tak, aby wewnątrz dokonywać wszelkich szyfrowań i kodowań wiadomości, dzięki czemu.
+   Klasa została zaprojektowana tak, aby wewnątrz dokonywać wszelkich szyfrowań i kodowań wiadomości.
 
 Przykłady użycia obu klas można znaleźć w klasie testowej [ExchangePacketProviderTest](src/test/java/pwr/bsiui/message/ExchangePacketProviderTest.java).
 

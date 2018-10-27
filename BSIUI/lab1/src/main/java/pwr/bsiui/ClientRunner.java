@@ -1,11 +1,13 @@
 package pwr.bsiui;
 
+import pwr.bsiui.net.ClientLoop;
+
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
-public final class Runner {
+public final class ClientRunner {
 
     public static void main(String[] args) {
-        System.out.println("Hello Diffie-Hellman chat!");
+        new ClientLoop(4001).start();
     }
 }

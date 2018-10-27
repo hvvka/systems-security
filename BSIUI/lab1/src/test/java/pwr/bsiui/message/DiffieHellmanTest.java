@@ -10,9 +10,9 @@ import static org.junit.Assert.assertEquals;
  */
 public class DiffieHellmanTest {
 
-    private static final long P = 1;
+    private static final long P = 23;
 
-    private static final long G = 2;
+    private static final long G = 5;
 
     private final long yourPrivateKey = 5;
 
@@ -50,15 +50,16 @@ public class DiffieHellmanTest {
     @Test
     public void sharedSecretKeysForClientAndServerAreTheSame() {
         // given
-        long serverPublicKey = 2;
-        long serverPrivateKey = 3;
-        long clientPublicKey = 4;
-        long clientPrivateKey = 5;
+        long serverPrivateKey = 6;
+        long clientPrivateKey = 15;
 
         DiffieHellman serverDiffieHellman = new DiffieHellman(P, G, serverPrivateKey);
-        serverDiffieHellman.setOthersPublicKey(clientPublicKey);
+        long serverPublicKey = serverDiffieHellman.calculatePublicKey();
 
         DiffieHellman clientDiffieHellman = new DiffieHellman(P, G, clientPrivateKey);
+        long clientPublicKey = clientDiffieHellman.calculatePublicKey();
+
+        serverDiffieHellman.setOthersPublicKey(clientPublicKey);
         clientDiffieHellman.setOthersPublicKey(serverPublicKey);
 
         // when

@@ -1,11 +1,13 @@
 package pwr.bsiui.message.encryption;
 
+import java.math.BigInteger;
+
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 public class EncryptionFactory {
 
-    private long secretKey;
+    private BigInteger secretKey;
 
     public Encryption getEncryption(String name) {
         switch (name) {
@@ -18,7 +20,7 @@ public class EncryptionFactory {
         }
     }
 
-    public void setSecretKey(long secretKey) {
+    public void setSecretKey(BigInteger secretKey) {
         this.secretKey = secretKey;
     }
 }

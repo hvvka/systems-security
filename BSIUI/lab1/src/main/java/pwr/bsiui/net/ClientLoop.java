@@ -7,10 +7,13 @@ import pwr.bsiui.message.model.Packet;
 import pwr.bsiui.message.model.PacketBuilder;
 import pwr.bsiui.net.client.SecureClient;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * An instance of this class provides fully configured client on specified port.
@@ -31,10 +34,10 @@ public class ClientLoop {
         MENU.put(6, "View your private key");
         MENU.put(7, "View your public key");
         MENU.put(8, "View shared secret key");
-        MENU.put(9, "Stop");
+        MENU.put(0, "Stop");
     }
 
-    private final long privateKey;
+    private final BigInteger privateKey;
 
     private final Client client;
 
@@ -49,7 +52,7 @@ public class ClientLoop {
     private boolean running;
 
     public ClientLoop(int port) {
-        this.privateKey = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+        this.privateKey = BigInteger.valueOf(ThreadLocalRandom.current().nextInt(500));
         this.client = new SecureClient("localhost", port);
         registerReceiveBroadcast();
         this.exchangePacketProvider = new ExchangePacketProvider();
@@ -60,7 +63,9 @@ public class ClientLoop {
 
     public void start() {
         while (running) {
-            MENU.keySet().forEach(k -> System.out.printf("%d. %s\n", k, MENU.get(k)));
+            MENU.keySet().stream()
+                    .filter(k -> ((k != 7 && k != 8) || diffieHellman != null))
+                    .forEach(k -> System.out.printf("%d. %s\n", k, MENU.get(k)));
             switch (reader.nextInt()) {
                 case 1: request("REQUEST_P_G", this::requestPG);
                     break;
@@ -78,11 +83,11 @@ public class ClientLoop {
                     break;
                 case 8: System.err.printf("Shared secret key: %s\n", diffieHellman.calculateSharedSecretKey());
                     break;
-                case 9: running = false;
+                case 0: running = false;
                     client.stop();
                     reader.close();
                     break;
-                default: System.err.printf("Invalid option\n");
+                default: System.err.println("Invalid option");
                     break;
             }
         }
@@ -91,14 +96,14 @@ public class ClientLoop {
     private void registerReceiveBroadcast() {
         this.client.registerMethod("BROADCAST", (msg, socket) -> {
             Packet packet = exchangePacketProvider.fromSecureJson((String) msg.get(1));
-            System.err.printf("Received broadcast message from user %s: '%s'", packet.getId(), packet.getMessage());
+            System.err.printf(">> Received broadcast message from user %s: '%s'\n", packet.getId(), packet.getMessage());
         });
     }
 
-    private void request(String methodName, ClientRequest clientRequest) {
+    private void request(String methodName, Consumer<Packet> packetConsumer) {
         String response = (String) client.sendMessage(methodName).get(1);
         Packet packet = exchangePacketProvider.fromSecureJson(response);
-        clientRequest.perform(packet);
+        packetConsumer.accept(packet);
     }
 
     private void requestPG(Packet packet) {
@@ -111,8 +116,8 @@ public class ClientLoop {
         this.diffieHellman.setOthersPublicKey(packet.getPublicKey());
     }
 
-    private void send(String methodName, Action clientAction) {
-        Packet packet = clientAction.perform();
+    private void send(String methodName, Supplier<Packet> packetSupplier) {
+        Packet packet = packetSupplier.get();
         String response = (String) client.sendMessage(methodName, exchangePacketProvider.toSecureJson(packet)).get(1);
         Packet receivedPacket = exchangePacketProvider.fromSecureJson(response);
         System.err.printf(">> %s\n", receivedPacket.getMessage());
@@ -122,7 +127,7 @@ public class ClientLoop {
         if (diffieHellman == null) {
             throw new IllegalStateException("!! You haven't requested server's public keys !!");
         }
-        exchangePacketProvider.setSecretKey(this.diffieHellman.calculatePublicKey());
+        exchangePacketProvider.setSecretKey(this.diffieHellman.calculateSharedSecretKey());
         return new PacketBuilder(encryptionName)
                 .setId(Client.DEFAULT_USER_ID)
                 .setPublicKey(diffieHellman.calculatePublicKey())

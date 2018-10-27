@@ -7,6 +7,8 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import pwr.bsiui.message.model.Packet;
 import pwr.bsiui.message.model.PacketBuilder;
 
+import java.math.BigInteger;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -25,6 +27,7 @@ public class ExchangePacketProviderTest {
     public void toSecureJson() throws JSONException {
         // given
         Packet packet = new PacketBuilder("xor").setMessage("ABC").createExchangePacket();
+        exchangePacketProvider.setSecretKey(BigInteger.valueOf(0));
 
         // when
         String json = exchangePacketProvider.toSecureJson(packet);
@@ -51,6 +54,7 @@ public class ExchangePacketProviderTest {
     public void fromSecureJson() {
         // given
         String json = "{\"message\":\"cXJz\",\"encryption\":\"xor\"}";
+        exchangePacketProvider.setSecretKey(BigInteger.valueOf(0));
 
         // when
         Packet packet = exchangePacketProvider.fromSecureJson(json);

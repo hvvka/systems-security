@@ -3,6 +3,8 @@ package pwr.bsiui.message;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigInteger;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -10,11 +12,11 @@ import static org.junit.Assert.assertEquals;
  */
 public class DiffieHellmanTest {
 
-    private static final long P = 23;
+    private static final BigInteger P = BigInteger.valueOf(23);
 
-    private static final long G = 5;
+    private static final BigInteger G = BigInteger.valueOf(5);
 
-    private final long yourPrivateKey = 5;
+    private final BigInteger yourPrivateKey = BigInteger.valueOf(5);
 
     private DiffieHellman diffieHellman;
 
@@ -26,45 +28,45 @@ public class DiffieHellmanTest {
     @Test
     public void calculatePublicKey() {
         // when
-        long publicKey = diffieHellman.calculatePublicKey();
+        BigInteger publicKey = diffieHellman.calculatePublicKey();
 
         // then
-        long expectedPublicKey = (long) Math.pow(G, yourPrivateKey) % P;
-        assertEquals(expectedPublicKey, publicKey);
+        int expectedPublicKey = (int) (Math.pow(G.intValue(), yourPrivateKey.intValue()) % P.intValue());
+        assertEquals(expectedPublicKey, publicKey.intValue());
     }
 
     @Test
     public void calculateSharedSecretKey() {
         // given
-        long othersPublicKey = 3;
+        BigInteger othersPublicKey = BigInteger.valueOf(3);
         diffieHellman.setOthersPublicKey(othersPublicKey);
 
         // when
-        long secretKey = diffieHellman.calculateSharedSecretKey();
+        BigInteger secretKey = diffieHellman.calculateSharedSecretKey();
 
         // then
-        long expectedSecretKey = (long) Math.pow(othersPublicKey, yourPrivateKey) % P;
-        assertEquals(expectedSecretKey, secretKey);
+        int expectedSecretKey = (int) Math.pow(othersPublicKey.intValue(), yourPrivateKey.intValue()) % P.intValue();
+        assertEquals(expectedSecretKey, secretKey.intValue());
     }
 
     @Test
     public void sharedSecretKeysForClientAndServerAreTheSame() {
         // given
-        long serverPrivateKey = 6;
-        long clientPrivateKey = 15;
+        BigInteger serverPrivateKey = BigInteger.valueOf(6);
+        BigInteger clientPrivateKey = BigInteger.valueOf(15);
 
         DiffieHellman serverDiffieHellman = new DiffieHellman(P, G, serverPrivateKey);
-        long serverPublicKey = serverDiffieHellman.calculatePublicKey();
+        BigInteger serverPublicKey = serverDiffieHellman.calculatePublicKey();
 
         DiffieHellman clientDiffieHellman = new DiffieHellman(P, G, clientPrivateKey);
-        long clientPublicKey = clientDiffieHellman.calculatePublicKey();
+        BigInteger clientPublicKey = clientDiffieHellman.calculatePublicKey();
 
         serverDiffieHellman.setOthersPublicKey(clientPublicKey);
         clientDiffieHellman.setOthersPublicKey(serverPublicKey);
 
         // when
-        long serverSecretKey = serverDiffieHellman.calculateSharedSecretKey();
-        long clientSecretKey = clientDiffieHellman.calculateSharedSecretKey();
+        BigInteger serverSecretKey = serverDiffieHellman.calculateSharedSecretKey();
+        BigInteger clientSecretKey = clientDiffieHellman.calculateSharedSecretKey();
 
         // then
         assertEquals(serverSecretKey, clientSecretKey);

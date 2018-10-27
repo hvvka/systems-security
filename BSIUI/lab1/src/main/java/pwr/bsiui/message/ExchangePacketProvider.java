@@ -2,6 +2,8 @@ package pwr.bsiui.message;
 
 import pwr.bsiui.message.model.Packet;
 
+import java.math.BigInteger;
+
 /**
  * Top-level class that can be used for client-server message exchange.
  * Can convert JSON to Packet and Packet to JSON.
@@ -19,7 +21,7 @@ public class ExchangePacketProvider {
 
     private final SecurePacketProvider securePacketProvider;
 
-    private long secretKey;
+    private BigInteger secretKey;
 
     public ExchangePacketProvider() {
         this.packetJsonSerializer = new PacketJsonSerializer();
@@ -36,7 +38,7 @@ public class ExchangePacketProvider {
         return securePacketProvider.decryptPacket(encodedPacket, secretKey);
     }
 
-    public void setSecretKey(long secretKey) {
+    public void setSecretKey(BigInteger secretKey) {
         this.secretKey = secretKey;
     }
 }

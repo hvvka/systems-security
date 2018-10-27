@@ -18,7 +18,7 @@ public class ExchangePacketProviderTest {
 
     @Before
     public void setUp() {
-        exchangePacketProvider = new ExchangePacketProvider();
+        this.exchangePacketProvider = new ExchangePacketProvider();
     }
 
     @Test

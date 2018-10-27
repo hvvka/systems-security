@@ -1,6 +1,8 @@
-package pwr.bsiui.server;
+package pwr.bsiui.net.server;
 
 /**
+ * Model class for storing client-specific information.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 public class ExchangeDetails {
@@ -25,5 +27,4 @@ public class ExchangeDetails {
     public void setEncryption(String encryption) {
         this.encryption = encryption;
     }
-
 }

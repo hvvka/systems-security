@@ -6,6 +6,9 @@ import pwr.bsiui.message.encryption.NoneEncryption;
 import java.util.Base64;
 
 /**
+ * Can either encrypt or decrypt a message (string) by specified encryption.
+ * Uses base64 encoding.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 class SecureMessage {

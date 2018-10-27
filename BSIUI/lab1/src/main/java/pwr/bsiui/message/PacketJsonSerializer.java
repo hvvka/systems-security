@@ -9,7 +9,11 @@ import pwr.bsiui.message.model.Packet;
 import java.io.IOException;
 
 /**
+ * Class for serialization and deserialization.
+ * Converts Packet to JSON or JSON to Packet with no modifications.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
+ * @see pwr.bsiui.message.model.Packet
  */
 class PacketJsonSerializer {
 

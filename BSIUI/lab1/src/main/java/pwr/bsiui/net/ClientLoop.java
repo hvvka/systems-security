@@ -1,10 +1,11 @@
-package pwr.bsiui.client;
+package pwr.bsiui.net;
 
 import com.blogspot.debukkitsblog.net.Client;
 import pwr.bsiui.message.DiffieHellman;
 import pwr.bsiui.message.ExchangePacketProvider;
 import pwr.bsiui.message.model.Packet;
 import pwr.bsiui.message.model.PacketBuilder;
+import pwr.bsiui.net.client.SecureClient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,9 +13,12 @@ import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
+ * An instance of this class provides fully configured client on specified port.
+ * Client has a menu of possible server interactions.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
-class ClientLoopDemo {
+public class ClientLoop {
 
     private static final Map<Integer, String> MENU = new HashMap<>();
 
@@ -44,7 +48,7 @@ class ClientLoopDemo {
 
     private boolean running;
 
-    ClientLoopDemo(int port) {
+    public ClientLoop(int port) {
         this.privateKey = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
         this.client = new SecureClient("localhost", port);
         registerReceiveBroadcast();
@@ -54,27 +58,19 @@ class ClientLoopDemo {
         this.running = true;
     }
 
-    private void registerReceiveBroadcast() {
-        this.client.registerMethod("BROADCAST", (msg, socket) -> {
-            System.err.println(msg.get(1));
-            Packet packet = exchangePacketProvider.fromSecureJson((String) msg.get(1));
-            System.err.printf("Received broadcast message from user %s: '%s'", packet.getId(), packet.getMessage());
-        });
-    }
-
-    void start() {
+    public void start() {
         while (running) {
             MENU.keySet().forEach(k -> System.out.printf("%d. %s\n", k, MENU.get(k)));
             switch (reader.nextInt()) {
-                case 1: requestPG();
+                case 1: request("REQUEST_P_G", this::requestPG);
                     break;
-                case 2: requestPublicKey();
+                case 2: request("REQUEST_KEY", this::requestPublicKey);
                     break;
-                case 3: sendYourPublicKey();
+                case 3: send("SEND_PUBLIC_KEY", this::sendYourPublicKey);
                     break;
-                case 4: sendMessage();
+                case 4: send("SEND_MESSAGE", this::sendMessage);
                     break;
-                case 5: changeMessageEncryption();
+                case 5: send("SEND_CHANGE_ENCRYPTION_METHOD", this::changeMessageEncryption);
                     break;
                 case 6: System.err.printf("Your private key: %s\n", privateKey);
                     break;
@@ -92,56 +88,62 @@ class ClientLoopDemo {
         }
     }
 
-    // TODO: refactor below methods to functional interface / parametrized method
-    private void requestPG() {
-        String response = (String) client.sendMessage("REQUEST_P_G").get(1);
+    private void registerReceiveBroadcast() {
+        this.client.registerMethod("BROADCAST", (msg, socket) -> {
+            Packet packet = exchangePacketProvider.fromSecureJson((String) msg.get(1));
+            System.err.printf("Received broadcast message from user %s: '%s'", packet.getId(), packet.getMessage());
+        });
+    }
+
+    private void request(String methodName, ClientRequest clientRequest) {
+        String response = (String) client.sendMessage(methodName).get(1);
         Packet packet = exchangePacketProvider.fromSecureJson(response);
+        clientRequest.perform(packet);
+    }
+
+    private void requestPG(Packet packet) {
         System.err.printf(">> Received P=%s, G=%s\n", packet.getP(), packet.getG());
         this.diffieHellman = new DiffieHellman(packet.getP(), packet.getG(), privateKey);
     }
 
-    private void requestPublicKey() {
-        String response = (String) client.sendMessage("REQUEST_KEY").get(1);
-        Packet packet = exchangePacketProvider.fromSecureJson(response);
+    private void requestPublicKey(Packet packet) {
         System.err.printf(">> Received server's public key=%s\n", packet.getPublicKey());
         this.diffieHellman.setOthersPublicKey(packet.getPublicKey());
     }
 
-    private void sendYourPublicKey() {
+    private void send(String methodName, Action clientAction) {
+        Packet packet = clientAction.perform();
+        String response = (String) client.sendMessage(methodName, exchangePacketProvider.toSecureJson(packet)).get(1);
+        Packet receivedPacket = exchangePacketProvider.fromSecureJson(response);
+        System.err.printf(">> %s\n", receivedPacket.getMessage());
+    }
+
+    private Packet sendYourPublicKey() {
         if (diffieHellman == null) {
-            requestPG();
-            requestPublicKey();
+            throw new IllegalStateException("!! You haven't requested server's public keys !!");
         }
-        Packet packet = new PacketBuilder(encryptionName)
+        exchangePacketProvider.setSecretKey(this.diffieHellman.calculatePublicKey());
+        return new PacketBuilder(encryptionName)
                 .setId(Client.DEFAULT_USER_ID)
                 .setPublicKey(diffieHellman.calculatePublicKey())
                 .createExchangePacket();
-        String response = (String) client.sendMessage("SEND_PUBLIC_KEY", exchangePacketProvider.toSecureJson(packet)).get(1);
-        Packet receivedPacket = exchangePacketProvider.fromSecureJson(response);
-        System.err.printf(">> %s\n", receivedPacket.getMessage());
     }
 
-    private void sendMessage() {
+    private Packet sendMessage() {
         System.out.print("Type in your message: ");
         reader.nextLine();
         String message = reader.nextLine();
-        Packet packet = new PacketBuilder(encryptionName)
+        return new PacketBuilder(encryptionName)
                 .setId(Client.DEFAULT_USER_ID)
                 .setMessage(message)
                 .createExchangePacket();
-        String response = (String) client.sendMessage("SEND_MESSAGE", exchangePacketProvider.toSecureJson(packet)).get(1);
-        Packet receivedPacket = exchangePacketProvider.fromSecureJson(response);
-        System.err.printf(">> Response: '%s'\n", receivedPacket.getMessage());
     }
 
-    private void changeMessageEncryption() {
+    private Packet changeMessageEncryption() {
         System.out.print("Choose new encryption method: ");
         this.encryptionName = reader.next();
-        Packet packet = new PacketBuilder(encryptionName)
+        return new PacketBuilder(encryptionName)
                 .setId(Client.DEFAULT_USER_ID)
                 .createExchangePacket();
-        String response = (String) client.sendMessage("SEND_CHANGE_ENCRYPTION_METHOD", exchangePacketProvider.toSecureJson(packet)).get(1);
-        Packet receivedPacket = exchangePacketProvider.fromSecureJson(response);
-        System.err.printf(">> %s\n", receivedPacket.getMessage());
     }
 }

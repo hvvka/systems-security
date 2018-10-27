@@ -24,7 +24,7 @@ task buildServerJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': rootProject.name + '-server',
                 'Implementation-Version': version,
-                'Main-Class': 'pwr.bsiui.server.ServerRunner'
+                'Main-Class': 'pwr.bsiui.ServerRunner'
     }
     baseName = 'server'
     archiveName = "${baseName}.${extension}"
@@ -36,7 +36,7 @@ task buildClientJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': rootProject.name + '-client',
                 'Implementation-Version': version,
-                'Main-Class': 'pwr.bsiui.client.ClientRunner'
+                'Main-Class': 'pwr.bsiui.ClientRunner'
     }
     baseName = 'client'
     archiveName = "${baseName}.${extension}"

@@ -1,4 +1,4 @@
-package pwr.bsiui.client;
+package pwr.bsiui.net.client;
 
 import com.blogspot.debukkitsblog.net.Client;
 

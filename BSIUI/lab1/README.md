@@ -57,17 +57,29 @@ _S_ – współdzielona (przez serwer i użytkownika) tajna liczba, klucz sekret
 
    **Uzasadnienie**: zostały wykorzystane:
       
-   - interfejsy funkcyjne (adnotacja `@FunctionalInterface` dla interfejsu `MessageEncoder` używana w
-   metodach z [SecurePacketProvider](src/main/java/pwr/bsiui/message/SecurePacketProvider.java), 
-   interfejsy `Supplier<T>`, `Function<T, R>` i [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)),
-   - wyrażenia lambda (klasy: [SecurePacketProvider](src/main/java/pwr/bsiui/message/SecurePacketProvider.java), 
-   [ClientLoop](src/main/java/pwr/bsiui/net/ClientLoop.java), [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java), 
-   [Client](src/main/java/com/blogspot/debukkitsblog/net/Client.java), [Server](src/main/java/com/blogspot/debukkitsblog/net/Server.java)),
+   - interfejsy funkcyjne (adnotacja `@FunctionalInterface` dla interfejsu `MessageEncoder` używana w metodach z 
+   [SecurePacketProvider](src/main/java/pwr/bsiui/message/SecurePacketProvider.java) oraz 
+   [Executable](src/main/java/com/blogspot/debukkitsblog/net/Executable.java), 
+   interfejsy `Supplier<T>`, `Function<T, R>` w 
+   [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java),
+   [Messages](src/main/java/pwr/bsiui/net/client/messages/Messages.java), 
+   [Requests](src/main/java/pwr/bsiui/net/client/messages/Requests.java)),
+   - wyrażenia lambda (klasy: 
+   [SecurePacketProvider](src/main/java/pwr/bsiui/message/SecurePacketProvider.java), 
+   [ClientLoop](src/main/java/pwr/bsiui/net/ClientLoop.java), 
+   [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java), 
+   [Messages](src/main/java/pwr/bsiui/net/client/messages/Messages.java), 
+   [Client](src/main/java/com/blogspot/debukkitsblog/net/Client.java), 
+   [Server](src/main/java/com/blogspot/debukkitsblog/net/Server.java)),
    - _Java Stream API_ dla operacji na kolekcjach (np. metoda `forEach` z interfejsu `java.lang.Iterable` czy `filter`
-   użyte w klasach [ClientLoop](src/main/java/pwr/bsiui/net/ClientLoop.java) oraz 
+   użyte w klasach 
+   [ClientLoop](src/main/java/pwr/bsiui/net/ClientLoop.java) oraz 
    [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)),
-   - klasa Optional ([SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)),
-   - przekazywanie referencji do metod ([ClientLoop](src/main/java/pwr/bsiui/net/ClientLoop.java), 
+   - klasa Optional (
+   [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)),
+   - przekazywanie referencji do metod (
+   [Messages](src/main/java/pwr/bsiui/net/client/messages/Messages.java), 
+   [Requests](src/main/java/pwr/bsiui/net/client/messages/Requests.java),
    [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)).
 
 

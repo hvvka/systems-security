@@ -59,8 +59,7 @@ _S_ – współdzielona (przez serwer i użytkownika) tajna liczba, klucz sekret
       
    - interfejsy funkcyjne (adnotacja `@FunctionalInterface` dla interfejsu `MessageEncoder` używana w
    metodach z [SecurePacketProvider](src/main/java/pwr/bsiui/message/SecurePacketProvider.java), 
-   interfejsy `Supplier<T>`, `Consumer<T>`, `Function<T, R>` w [ClientLoop](src/main/java/pwr/bsiui/net/ClientLoop.java) 
-   i [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)
+   interfejsy `Supplier<T>`, `Function<T, R>` i [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java)),
    - wyrażenia lambda (klasy: [SecurePacketProvider](src/main/java/pwr/bsiui/message/SecurePacketProvider.java), 
    [ClientLoop](src/main/java/pwr/bsiui/net/ClientLoop.java), [SecureServer](src/main/java/pwr/bsiui/net/SecureServer.java), 
    [Client](src/main/java/com/blogspot/debukkitsblog/net/Client.java), [Server](src/main/java/com/blogspot/debukkitsblog/net/Server.java)),
@@ -114,7 +113,7 @@ Przykładowy JSON z wszystkimi wartościami wypełnionymi:
     "g": "5",
     "id": "e761c267-f6a9-41ed-b2c5-ff6a32d8f4a1",
     "message": "{ZWVRAEZ@ZG\Az[\CV^Javrw~vz__QV[V_CUF_G\J\F",
-    "publicKey": "1230",
+    "publicKey": 1230,
     "encryption": "xor" 
 }
 ```

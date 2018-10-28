@@ -1,6 +1,6 @@
 package pwr.bsiui;
 
-import pwr.bsiui.net.SecureServer;
+import pwr.bsiui.net.server.SecureServer;
 
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>

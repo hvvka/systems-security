@@ -14,19 +14,20 @@ class SecurePacketProviderSpec extends Specification {
     def "encryptPacket"() {
         given:
         def packet = new PacketBuilder(encryption)
-                .setP(p)
-                .setG(g)
+                .setP(BigInteger.valueOf(p))
+                .setG(BigInteger.valueOf(g))
                 .setId(id)
                 .setMessage(message)
-                .setPublicKey(publicKey)
+                .setPublicKey(BigInteger.valueOf(publicKey))
                 .createExchangePacket()
         def exchangePacket = new SecurePacketProvider()
 
         when:
-        def encryptedPacket = exchangePacket.encryptPacket(packet, secretKey)
+        def encryptedPacket = exchangePacket.encryptPacket(packet, BigInteger.valueOf(secretKey))
 
         then:
-        def expectedPacket = new Packet(p, g, id, encryptedMessage, publicKey, encryption)
+        def expectedPacket = new Packet(BigInteger.valueOf(p), BigInteger.valueOf(g), id, encryptedMessage,
+                BigInteger.valueOf(publicKey), encryption)
         expectedPacket == encryptedPacket
 
         where:
@@ -41,19 +42,20 @@ class SecurePacketProviderSpec extends Specification {
     def "decryptPacket"() {
         given:
         def packet = new PacketBuilder(encryption)
-                .setP(p)
-                .setG(g)
+                .setP(BigInteger.valueOf(p))
+                .setG(BigInteger.valueOf(g))
                 .setId(id)
                 .setMessage(message)
-                .setPublicKey(publicKey)
+                .setPublicKey(BigInteger.valueOf(publicKey))
                 .createExchangePacket()
         def exchangePacket = new SecurePacketProvider()
 
         when:
-        def decryptedPacket = exchangePacket.decryptPacket(packet, secretKey)
+        def decryptedPacket = exchangePacket.decryptPacket(packet, BigInteger.valueOf(secretKey))
 
         then:
-        def expectedPacket = new Packet(p, g, id, decryptedMessage, publicKey, encryption)
+        def expectedPacket = new Packet(BigInteger.valueOf(p), BigInteger.valueOf(g), id, decryptedMessage,
+                BigInteger.valueOf(publicKey), encryption)
         expectedPacket == decryptedPacket
 
         where:

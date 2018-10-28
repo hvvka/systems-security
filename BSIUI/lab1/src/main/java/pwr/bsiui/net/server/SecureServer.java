@@ -1,4 +1,4 @@
-package pwr.bsiui.net;
+package pwr.bsiui.net.server;
 
 import com.blogspot.debukkitsblog.net.Server;
 import org.slf4j.Logger;
@@ -7,13 +7,10 @@ import pwr.bsiui.message.DiffieHellman;
 import pwr.bsiui.message.ExchangePacketProvider;
 import pwr.bsiui.message.model.Packet;
 import pwr.bsiui.message.model.PacketBuilder;
-import pwr.bsiui.net.server.ExchangeDetails;
-import pwr.bsiui.net.server.RandomResponseProvider;
 
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -93,11 +90,10 @@ public class SecureServer extends Server {
 
     private void registerResponse(String methodName, Function<Packet, Packet> packetPacketFunction) {
         registerMethod(methodName, (msg, socket) -> {
-            Optional<String> clientId = clientEncryption.keySet()
-                    .stream()
-                    .filter(((String) msg.get(1))::contains)
-                    .findFirst();
-            clientId.ifPresent(id -> exchangePacketProvider.setSecretKey(clientEncryption.get(id).getSecretKey()));
+//            Optional<String> clientId = clientEncryption.keySet()
+//                    .stream()
+//                    .filter(((String) msg.get(1))::contains)
+//                    .findFirst();
             Packet receivedPacket = exchangePacketProvider.fromSecureJson((String) msg.get(1));
             Packet packet = packetPacketFunction.apply(receivedPacket);
             String json = exchangePacketProvider.toSecureJson(packet);

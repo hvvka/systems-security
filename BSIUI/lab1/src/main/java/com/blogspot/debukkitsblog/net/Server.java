@@ -176,7 +176,6 @@ public abstract class Server {
                 }
                 broadcastMessage(new Datapackage("_INTERNAL_PING_", "OK"));
             }
-
         }).start();
     }
 
@@ -222,7 +221,6 @@ public abstract class Server {
                                 }
                             }
                         }
-
                     } catch (SocketException e) {
                         onLog("Server stopped.");
                         onServerStopped();

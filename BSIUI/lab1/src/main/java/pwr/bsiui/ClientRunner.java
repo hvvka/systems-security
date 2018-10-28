@@ -1,6 +1,6 @@
 package pwr.bsiui;
 
-import pwr.bsiui.net.ClientLoop;
+import pwr.bsiui.net.client.ClientLoop;
 
 /**
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>

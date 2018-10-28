@@ -11,7 +11,7 @@ public class RandomResponseProvider {
 
     private static final String[] RESPONSES = {
             "Hi", "I'm server", "Dadada", "Morning, sir", "Morning, madam", "Guten tag", "Hola, mi amigo",
-            "Guten morgen", "Ahoj", "Olá!", "Ciao", "Buenos días", "Buenos días, señor", "Willkommen"
+            "Guten morgen", "Ahoj", "Ola!", "Ciao", "Buenos dias", "Buenos dias, senor", "Willkommen"
     };
 
     private RandomResponseProvider() {

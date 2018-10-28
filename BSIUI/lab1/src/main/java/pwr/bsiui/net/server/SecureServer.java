@@ -11,6 +11,7 @@ import pwr.bsiui.message.model.PacketBuilder;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -90,10 +91,11 @@ public class SecureServer extends Server {
 
     private void registerResponse(String methodName, Function<Packet, Packet> packetPacketFunction) {
         registerMethod(methodName, (msg, socket) -> {
-//            Optional<String> clientId = clientEncryption.keySet()
-//                    .stream()
-//                    .filter(((String) msg.get(1))::contains)
-//                    .findFirst();
+            Optional<String> clientId = clientEncryption.keySet()
+                    .stream()
+                    .filter(((String) msg.get(1))::contains)
+                    .findFirst();
+            clientId.ifPresent(id -> exchangePacketProvider.setSecretKey(clientEncryption.get(id).getSecretKey()));
             Packet receivedPacket = exchangePacketProvider.fromSecureJson((String) msg.get(1));
             Packet packet = packetPacketFunction.apply(receivedPacket);
             String json = exchangePacketProvider.toSecureJson(packet);

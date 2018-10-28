@@ -37,8 +37,8 @@ class SecurePacketProvider {
     private Packet cryptMessage(Packet packet, MessageEncoder messageEncoder, BigInteger secretKey) {
         String encryption = packet.getEncryption();
         if ("xor".equals(encryption)) this.encryptionFactory.setSecretKey(secretKey);
-        SecureMessage secureMessage = new SecureMessage(encryptionFactory.getEncryption(packet.getEncryption()));
+        SecureMessage secureMessage = new SecureMessage(encryptionFactory.getEncryption(encryption));
         String decodedMessage = messageEncoder.getMessage(secureMessage);
-        return new Packet(packet.getP(), packet.getG(), packet.getId(), decodedMessage, packet.getPublicKey(), packet.getEncryption());
+        return new Packet(packet.getP(), packet.getG(), packet.getId(), decodedMessage, packet.getPublicKey(), encryption);
     }
 }

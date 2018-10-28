@@ -60,9 +60,7 @@ public class ClientLoop {
 
     public void start() {
         while (running) {
-            MENU.keySet().stream()
-//                    .filter(k -> ((k != 7 && k != 8) || requests.getDiffieHellman() != null))
-                    .forEach(k -> System.out.printf("%d. %s%n", k, MENU.get(k)));
+            MENU.keySet().forEach(k -> System.out.printf("%d. %s%n", k, MENU.get(k)));
             switch (reader.nextInt()) {
                 case 1: request(requests.createRequestPG());
                     break;

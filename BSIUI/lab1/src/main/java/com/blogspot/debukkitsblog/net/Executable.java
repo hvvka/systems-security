@@ -10,6 +10,7 @@ import java.net.Socket;
  * @author Leonard Bienbeck
  * @version 2.4.1
  */
+@FunctionalInterface
 public interface Executable {
 
     /**

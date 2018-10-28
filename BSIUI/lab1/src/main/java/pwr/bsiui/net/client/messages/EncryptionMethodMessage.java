@@ -1,7 +1,6 @@
 package pwr.bsiui.net.client.messages;
 
 import com.blogspot.debukkitsblog.net.Client;
-import pwr.bsiui.message.DiffieHellman;
 import pwr.bsiui.message.model.Packet;
 import pwr.bsiui.message.model.PacketBuilder;
 
@@ -14,13 +13,10 @@ public class EncryptionMethodMessage implements Message {
 
     private final Scanner reader;
 
-    private final DiffieHellman diffieHellman;
-
     private String encryptionName;
 
-    EncryptionMethodMessage(Scanner reader, DiffieHellman diffieHellman) {
+    EncryptionMethodMessage(Scanner reader) {
         this.reader = reader;
-        this.diffieHellman = diffieHellman;
     }
 
     @Override

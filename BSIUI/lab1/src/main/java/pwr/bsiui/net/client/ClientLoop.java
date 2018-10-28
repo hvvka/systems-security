@@ -73,7 +73,7 @@ public class ClientLoop {
                     break;
                 case 4: send(messages.createConcreteMessage());
                     break;
-                case 5: send(messages.createEncryptionMethod(requests.getDiffieHellman()));
+                case 5: send(messages.createEncryptionMethod());
                     break;
                 case 6: System.err.printf("Your private key: %s%n", privateKey);
                     break;

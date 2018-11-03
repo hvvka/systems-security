@@ -1,6 +1,8 @@
 package pwr.bsiui.message.encryption;
 
 /**
+ * Does no modification on message.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 public class NoneEncryption implements Encryption {

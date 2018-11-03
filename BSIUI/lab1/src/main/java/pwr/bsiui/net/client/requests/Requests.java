@@ -6,6 +6,8 @@ import java.math.BigInteger;
 import java.util.function.Supplier;
 
 /**
+ * Facade providing defined request types for client.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 public class Requests {

@@ -164,10 +164,11 @@ Przykłady użycia obu klas można znaleźć w klasie testowej [ExchangePacketPr
 ### Dodawanie nowych sposobów szyfrowania
 
 W pakiecie [pwr.bsiui.message.encryption](src/main/java/pwr/bsiui/message/encryption) zdefiniowane są 3 sposoby szyfrowania. 
-Dodanie kolejnego szyfrowania jest równoznaczne ze stworzeniem klasy implementującej interfejs [Encryption](src/main/java/pwr/bsiui/message/encryption/Encryption.java) z tego pakietu.
+Dodanie kolejnego szyfrowania jest równoznaczne ze stworzeniem klasy implementującej interfejs 
+[Encryption](src/main/java/pwr/bsiui/message/encryption/Encryption.java) z tego pakietu.
 
-Następnie należy zmodyfikować klasę [EncryptionFactory](src/main/java/pwr/bsiui/message/encryption/EncryptionFactory.java), aby udostępniała nowy sposób szyfrowania.
-
+Następnie należy zmodyfikować klasę [EncryptionFactory](src/main/java/pwr/bsiui/message/encryption/EncryptionFactory.java), 
+aby udostępniała nowy sposób szyfrowania.
 
 
 

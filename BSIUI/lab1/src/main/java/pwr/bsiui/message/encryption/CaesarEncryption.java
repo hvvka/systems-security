@@ -1,7 +1,10 @@
 package pwr.bsiui.message.encryption;
 
 /**
+ * Does Caesar cipher message encryption or decryption.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Caesar_cipher">Caesar cipher</a>
  */
 public class CaesarEncryption implements Encryption {
 

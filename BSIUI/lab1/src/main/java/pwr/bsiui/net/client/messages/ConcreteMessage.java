@@ -7,6 +7,8 @@ import pwr.bsiui.message.model.PacketBuilder;
 import java.util.Scanner;
 
 /**
+ * Constructs concrete message that can be send to server.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 public class ConcreteMessage implements Message {

@@ -29,7 +29,7 @@ class PacketJsonSerializer {
     String toJson(Packet packet) {
         try {
             String json = mapper.writeValueAsString(packet);
-            LOG.info("Converting to: {}", json);
+            LOG.debug("Converting to: {}", json);
             return json;
         } catch (IOException e) {
             LOG.error("Couldn't serialize packet: {}", e);
@@ -38,7 +38,7 @@ class PacketJsonSerializer {
     }
 
     Packet fromJson(String json) {
-        LOG.info("Converting from: {}", json);
+        LOG.debug("Converting from: {}", json);
         try {
             return mapper.readValue(json, Packet.class);
         } catch (IOException e) {

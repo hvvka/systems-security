@@ -6,6 +6,8 @@ import pwr.bsiui.message.model.Packet;
 import pwr.bsiui.message.model.PacketBuilder;
 
 /**
+ * Sends message to server with user public key.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 public class PublicKeyMessage implements Message {

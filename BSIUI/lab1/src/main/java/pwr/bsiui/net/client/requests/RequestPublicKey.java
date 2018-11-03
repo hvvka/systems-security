@@ -6,6 +6,8 @@ import pwr.bsiui.message.model.Packet;
 import java.math.BigInteger;
 
 /**
+ * Sends request for server's public key.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 public class RequestPublicKey implements Request {

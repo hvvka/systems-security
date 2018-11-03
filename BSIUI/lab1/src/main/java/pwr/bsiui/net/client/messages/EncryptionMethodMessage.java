@@ -7,6 +7,8 @@ import pwr.bsiui.message.model.PacketBuilder;
 import java.util.Scanner;
 
 /**
+ * Sends message to server with request to change encryption method.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 public class EncryptionMethodMessage implements Message {

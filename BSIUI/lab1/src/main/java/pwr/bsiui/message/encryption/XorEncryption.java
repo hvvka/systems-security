@@ -1,6 +1,8 @@
 package pwr.bsiui.message.encryption;
 
 /**
+ * Encrypts or decrypts messsage with last character of secret key.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 public class XorEncryption implements Encryption {

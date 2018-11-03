@@ -6,6 +6,8 @@ import java.util.Scanner;
 import java.util.function.Supplier;
 
 /**
+ * Facade providing defined message types that can be send from client to server.
+ *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
 public class Messages {

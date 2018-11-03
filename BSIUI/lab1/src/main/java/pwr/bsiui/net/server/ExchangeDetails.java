@@ -7,7 +7,7 @@ import java.math.BigInteger;
  *
  * @author <a href="mailto:226154@student.pwr.edu.pl">Hanna Grodzicka</a>
  */
-public class ExchangeDetails {
+class ExchangeDetails {
 
     private final BigInteger publicKey;
 
@@ -15,25 +15,25 @@ public class ExchangeDetails {
 
     private String encryption;
 
-    public ExchangeDetails(BigInteger publicKey, BigInteger secretKey, String encryption) {
+    ExchangeDetails(BigInteger publicKey, BigInteger secretKey, String encryption) {
         this.publicKey = publicKey;
         this.secretKey = secretKey;
         this.encryption = encryption;
     }
 
-    public BigInteger getPublicKey() {
+    BigInteger getPublicKey() {
         return publicKey;
     }
 
-    public BigInteger getSecretKey() {
+    BigInteger getSecretKey() {
         return secretKey;
     }
 
-    public String getEncryption() {
+    String getEncryption() {
         return encryption;
     }
 
-    public void setEncryption(String encryption) {
+    void setEncryption(String encryption) {
         this.encryption = encryption;
     }
 }

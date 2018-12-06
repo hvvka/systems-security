@@ -42,6 +42,8 @@ $ ./clear.sh
 
 ## Analiza program 8
 
+Program przyjmuje przez wejście standardowe dwie wartości: `USER` i `KEY`. Pierwszą z nich jest numer indeksu, zaś druga to hasło generowane przez program (deterministycznie) dla tego indeksu. 
+
 Na początku programu, w funkcji `main` alokowane są bloki pamięci (funkcja systemowa `calloc`).
 
 Kolejny istotnym fragmentem jest:
@@ -72,7 +74,18 @@ Kolejny istotnym fragmentem jest:
  804878b: e8 c8 fd ff ff        call   8048558 <strncmp@plt>
 ```
 
-Następuje tu pobranie ciągów znaków od użytkownika, kolejno loginu (numeru indeksu) i hasła, następnie wywoływana jest funkcja `generate_key`, a jej wynik zostaje porównany z otrzymanym hasłem. Jeśli hasła się zgadzają, w dalszej części programu (nieuwzględnionej na listingu) program wywołuje funkcję `winner`, w przeciwnym wypadku - `looser`.
+Następuje tu pobranie ciągów znaków od użytkownika (funkcje systemowe `scanf`, `getchar`, `fgets`), kolejno:
+- loginu (numeru indeksu),
+- hasła.
+
+Następnie wywoływana jest funkcja `generate_key`, a jej wynik zostaje porównany (funkcja `strncmp`) z otrzymanym hasłem. Jeśli hasła się zgadzają, w dalszej części programu (nieuwzględnionej na listingu) program wywołuje funkcję `winner`, w przeciwnym wypadku - `looser`.
+
+Sama funkcja porównująca przyjmuje następujące argumenty:
+```cpp
+int strncmp(const char* s1, const char* s2, size_t n);
+```
+czyli odpowiednio (z powyższego listingu): $ebx, $esi, $0x20.
+Zatem hasło ma 32 znaki i wskaźnik do niego znajduje się w jednym z rejestrów.
 
 Miejscem wartym postawienia breakpointa jest adres 0x0804878b. Podczas debuggowania programu można było podejrzeć hasło, do którego przyrównywane jest hasło pobrane ze standardowego wejścia.
 
@@ -106,7 +119,14 @@ Rejestr ESI zawiera prawidłowe hasło dla indeksu "226154".
 
 
 
-Dalszej analizie podlegała funkcja `generate_key`:
+Dalszej analizie podlegała funkcja `generate_key`.
+
+Przed wywołaniem tej funkcji, na stos odkładane są trzy argumenty, z których ona korzyta:
+- 0x20 – rozmiar bufora (`push   $0x20`),
+- 0x0804c030 – adres podanego hasła (`push   %esi`),
+- 0x0003736a – podany indeks zapisany szesnastkowo (`pushl  -0x1c(%ebp)`).
+
+Ciało `generate_key`:
 ```
 08048624 <generate_key>:
  8048624: 55                    push   %ebp
@@ -155,19 +175,19 @@ Dalszej analizie podlegała funkcja `generate_key`:
  8048686: c3                    ret    
 ```
 
-Przed wywołaniem tej funkcji, na stos odkładane są trzy argumenty, z których ona korzyta:
-- 0x20 – rozmiar bufora,
-- 0x0804c030 – adres podanego hasła,
-- 0x0003736a – podany indeks zapisany szesnastkowo.
+Na początku funkcji wykonywane są dwa dzielenia (`div`). Numer indeksu jest dzielony przez 0x24 (0d36), a reszta z tego dzielenia trafia do rejestru EDI. Kolejne dzielenie dotyczy numeru indeksu przez 0x64 (0d100). W wyniku operacji `and    $0x1,%ebx` i `mov    %ebx,-0x14(%ebp)` ostatni bit z trzeciej ostatniej cyfry indeksu zostaje zachowany na stosie (spradzenie czy cyfra jest parzysta). Odkładane jest 0 lub 1.
 
-W funkcji `generate_key` zapisana jest pętla, która się wykonuje 32 razy. Licznikiem tej funkcji jest rejestr ECX. Istotne są dwie linjki:
+Począwszy od adresu 0x08048652 `generate_key` zapisana jest pętla. która się wykonuje 32 razy. Licznikiem jest rejestr ECX. 
 
+Na początku pętli wynik dodawania licznika (ECX) i EDI dzielony jest przez 0x24 (0d36), a następnie wykonywany jest skok pod dalszy adres 0x08048671, jeśli cyfra w podanym indeksie (sprawdzany jest wcześniej odłożony bit na stos) była nieparzysta. W przeciwnym wypadku, jeśli cyfra była parzysta, to od EDX odejmowane jest 0x23 (0d35).
+
+Istotne są dwie kolejne linjki:
 ```
 8048671: 8a 82 90 88 04 08     mov    0x8048890(%edx),%al
 8048677: 88 04 0e              mov    %al,(%esi,%ecx,1)
 ```
 
-Spod adresu 0x8048890 + przesunięcie zgodne z zawartością rejestru EDX kopiowany jest bajt (znak), a następnie jest on przepisywany pod adres w ESI + licznik.
+Spod adresu 0x8048890 + przesunięcie zgodne z zawartością rejestru EDX kopiowany jest bajt (znak), a następnie jest on przepisywany pod adres w ESI + licznik (ECX).
 
 Zatem w pętli kopiowany jest pewien ciąg znaków spod adresu 0x8048890. Podglądając jego zawartość otrzymano następujący rezultat:
 
@@ -181,9 +201,9 @@ Zauważono pewną zgodność z poprzednio oglądanym hasłem dla indeksu "226154
 Hasło: `jz1ust0obix7vp6ym9kcd4q3egw8an5h`
 Ciąg:  `lrjz1ust0obix7vp6ym9kcd4q3egw8an5h2f`
 
-Hasło ma 32 bajty, zaś ciąg 36. Hasło jest kopią ciągu od pewnego jego miejsca. Ponieważ hasło jest inne dla każdego indeksu, to musi mieć on jakiś udział w wyborze miejsca, od którego zaczyna się kopiowanie.
+Hasło ma 32 bajty, zaś ciąg 36. Hasło jest kopią ciągu od pewnego jego miejsca, które jest determinowane przez zawartość rejestru EDX.
 
-Zamiast dogłębnie analizować zdeasemblowaną funkcję, postawiono na metodę prób i błędów: debuggowanie miejsca przy adresie 0x0804878b (wywołanie funkcji systemowej `strncmp`) sprawdzając zawartość rejestru ESI, gdzie jest odłożone hasło powstałe w wyniku działania funkcji `generate_key` dla różnych indeksów.
+Aby zweryfikować analizę, spróbowano debuggować miejsce przy adresie 0x0804878b (wywołanie funkcji systemowej `strncmp`) sprawdzając zawartość rejestru ESI, gdzie jest odłożone hasło powstałe w wyniku działania funkcji `generate_key` dla różnych indeksów.
 
 ```
 226000: tsu1zjrlf2h5na8wge3q4dck9my6pv7x
@@ -222,7 +242,7 @@ Działanie programu zostało przetestowane przez skrypt [bruteforce.sh](./src/br
 
 
 ## Podsumowanie
-Zadanie zostało prawie ukończone podczas laboratorium, na którym prawdopodobnie zbyt skupiono się na analizie i próbie odtworzenia poszczególnych operacji w assemblerze, co naturalnie naprowadziło na sposób tworzenia hasła. Najważniejsze było znalezienie miejsce w pamięci ciągu, z którego hasła są czerpane oraz zauważenie, że sprawdzana jest trzecia cyfra indeksu od końca (cyfra jest odkładana na stos i adresowana pośrednio).
+Zadanie zostało prawie ukończone podczas laboratorium, na którym prawdopodobnie zbyt skupiono się na analizie i próbie odtworzenia poszczególnych operacji w assemblerze jeszcze przed wywołaniem `generate_key`. Najważniejsze było znalezienie miejsca w pamięci ciągu, z którego hasła są czerpane oraz zauważenie, że sprawdzana jest trzecia cyfra indeksu od końca (cyfra jest odkładana na stos i adresowana pośrednio).
 
 
 

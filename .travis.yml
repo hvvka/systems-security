@@ -1,0 +1,25 @@
+os:
+- linux
+
+language: java
+
+jdk:
+- oraclejdk8
+
+branches:
+  only:
+  - master
+
+
+script:
+# build lab1
+- cd diffie-hellman
+- chmod +x gradlew
+- ./gradlew clean test
+
+
+notifications:
+  webhooks:
+    on_success: change
+    on_failure: always
+    on_start: false

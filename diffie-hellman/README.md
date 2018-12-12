@@ -1,4 +1,4 @@
-# Diffie-Helmann communicator
+# Diffie-Hellman communicator
 
 
 ## Spis treści
